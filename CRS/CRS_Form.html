@@ -1,0 +1,1361 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Case Review Sheet (CRS) — Seaport Smiles</title>
+<style>
+  :root {
+    --primary: #3b6fa0;
+    --primary-light: #eaf1f9;
+    --accent: #e07b7b;
+    --green: #3a9e6e;
+    --border: #d0d9e3;
+    --bg: #f4f7fa;
+    --card: #ffffff;
+    --text: #1e293b;
+    --muted: #64748b;
+    --label: #374151;
+    --other-bg: #fffbea;
+    --section-head: #1e3a5f;
+    --radius: 10px;
+    --shadow: 0 2px 12px rgba(59,111,160,0.09);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-size: 14px;
+    line-height: 1.5;
+  }
+  header {
+    background: var(--primary);
+    color: #fff;
+    padding: 18px 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+  }
+  header h1 { font-size: 18px; font-weight: 700; letter-spacing: 0.3px; }
+  header span { font-size: 13px; opacity: 0.8; }
+  .container { max-width: 880px; margin: 0 auto; padding: 24px 16px 80px; }
+
+  /* Patient banner */
+  .patient-bar {
+    background: var(--card);
+    border: 2px solid var(--primary);
+    border-radius: var(--radius);
+    padding: 14px 20px;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    box-shadow: var(--shadow);
+  }
+  .patient-bar label { font-weight: 700; color: var(--primary); font-size: 13px; white-space: nowrap; }
+  .patient-bar input {
+    flex: 1;
+    border: none;
+    border-bottom: 2px solid var(--primary);
+    padding: 4px 8px;
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text);
+    background: transparent;
+    outline: none;
+  }
+  .patient-bar input::placeholder { color: #b0bec5; font-weight: 400; }
+
+  /* Section card */
+  .section {
+    background: var(--card);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    margin-bottom: 16px;
+    overflow: hidden;
+  }
+  .section-header {
+    background: var(--primary-light);
+    border-bottom: 1px solid var(--border);
+    padding: 10px 20px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    user-select: none;
+  }
+  .section-header h2 {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--section-head);
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    flex: 1;
+  }
+  .section-header .toggle { color: var(--primary); font-size: 16px; transition: transform 0.2s; }
+  .section-header.collapsed .toggle { transform: rotate(-90deg); }
+  .section-body { padding: 16px 20px; display: grid; gap: 14px; }
+  .section-body.hidden { display: none; }
+
+  /* Field groups */
+  .field { display: flex; flex-direction: column; gap: 5px; }
+  .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .field-row-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; }
+
+  label.field-label {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--label);
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+  }
+  label.field-label .req { color: var(--accent); margin-left: 2px; }
+  .hint { font-size: 11px; color: var(--muted); font-style: italic; margin-top: -2px; }
+
+  /* Text inputs */
+  input[type="text"], textarea, select {
+    border: 1.5px solid var(--border);
+    border-radius: 6px;
+    padding: 8px 10px;
+    font-size: 14px;
+    color: var(--text);
+    background: #fff;
+    outline: none;
+    transition: border-color 0.15s;
+    width: 100%;
+  }
+  input[type="text"]:focus, textarea:focus, select:focus { border-color: var(--primary); }
+  textarea { resize: vertical; min-height: 70px; }
+
+  /* Radio / Checkbox pill groups */
+  .pill-group { display: flex; flex-wrap: wrap; gap: 6px; }
+  .pill-group.column { flex-direction: column; gap: 5px; }
+
+  .pill input[type="radio"],
+  .pill input[type="checkbox"] { display: none; }
+
+  .pill label {
+    display: inline-block;
+    padding: 5px 11px;
+    border: 1.5px solid var(--border);
+    border-radius: 20px;
+    font-size: 12.5px;
+    color: var(--muted);
+    cursor: pointer;
+    background: #fff;
+    transition: all 0.12s;
+    white-space: nowrap;
+  }
+  .pill input[type="radio"]:checked + label,
+  .pill input[type="checkbox"]:checked + label {
+    background: var(--primary);
+    border-color: var(--primary);
+    color: #fff;
+    font-weight: 600;
+  }
+  .pill label:hover { border-color: var(--primary); color: var(--primary); }
+  .pill input[type="radio"]:checked + label:hover,
+  .pill input[type="checkbox"]:checked + label:hover { color: #fff; }
+
+  /* Other option */
+  .other-container { display: flex; align-items: center; gap: 6px; flex-wrap: nowrap; }
+  .other-text {
+    flex: 1;
+    min-width: 140px;
+    max-width: 280px;
+    padding: 4px 8px !important;
+    font-size: 12.5px !important;
+    border-radius: 4px !important;
+  }
+  .other-text.hidden { display: none; }
+
+  /* Grid table for teeth */
+  .teeth-grid { width: 100%; border-collapse: collapse; font-size: 12px; }
+  .teeth-grid th {
+    background: var(--primary-light);
+    color: var(--primary);
+    padding: 5px 8px;
+    font-weight: 700;
+    text-align: left;
+    border: 1px solid var(--border);
+  }
+  .teeth-grid td { border: 1px solid var(--border); padding: 4px 6px; }
+  .teeth-grid td.row-label { font-weight: 700; color: var(--label); background: #fafbfc; width: 40px; }
+  .tooth-cb { display: flex; align-items: center; gap: 3px; white-space: nowrap; }
+  .tooth-cb input[type="checkbox"] { display: inline; width: 13px; height: 13px; cursor: pointer; accent-color: var(--primary); margin: 0; }
+  .tooth-cb label { font-size: 12px; cursor: pointer; color: var(--text); }
+
+  /* Elastic section (conditional) */
+  #elasticSection { display: none; }
+  #elasticSection.visible { display: block; }
+
+  /* Grid for buttons/elastic type */
+  .matrix-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+  .matrix-table th {
+    background: var(--primary-light);
+    color: var(--primary);
+    font-weight: 700;
+    padding: 5px 8px;
+    border: 1px solid var(--border);
+    text-align: center;
+  }
+  .matrix-table td { border: 1px solid var(--border); padding: 5px 8px; vertical-align: top; }
+  .matrix-table td.row-label { font-weight: 700; color: var(--label); background: #fafbfc; white-space: nowrap; }
+  .matrix-table .chip-group { display: flex; flex-wrap: wrap; gap: 3px; }
+  .matrix-table .chip { display: inline-flex; align-items: center; gap: 2px; }
+  .matrix-table .chip input[type="checkbox"] { display: inline; width: 12px; height: 12px; cursor: pointer; accent-color: var(--primary); margin: 0; }
+  .matrix-table .chip label { font-size: 11.5px; cursor: pointer; }
+
+  /* Submit bar */
+  .submit-bar {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: #fff;
+    border-top: 2px solid var(--border);
+    padding: 12px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    z-index: 200;
+    box-shadow: 0 -2px 12px rgba(0,0,0,0.08);
+  }
+  .btn-submit {
+    background: var(--green);
+    color: #fff;
+    border: none;
+    padding: 11px 32px;
+    border-radius: 8px;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    letter-spacing: 0.3px;
+    transition: background 0.15s, transform 0.1s;
+  }
+  .btn-submit:hover { background: #2d8059; }
+  .btn-submit:active { transform: scale(0.98); }
+  .btn-clear {
+    background: transparent;
+    color: var(--muted);
+    border: 1.5px solid var(--border);
+    padding: 9px 20px;
+    border-radius: 8px;
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .btn-clear:hover { border-color: var(--accent); color: var(--accent); }
+
+  /* Toast */
+  #toast {
+    display: none;
+    position: fixed;
+    top: 24px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--green);
+    color: #fff;
+    padding: 14px 28px;
+    border-radius: 10px;
+    font-weight: 700;
+    font-size: 15px;
+    z-index: 999;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.18);
+    text-align: center;
+  }
+  #toast.error { background: var(--accent); }
+
+  /* Section badge */
+  .badge {
+    background: var(--primary);
+    color: #fff;
+    border-radius: 50%;
+    width: 20px; height: 20px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+
+  @media (max-width: 600px) {
+    .field-row, .field-row-3 { grid-template-columns: 1fr; }
+    .submit-bar { flex-direction: column-reverse; gap: 8px; }
+    .btn-submit { width: 100%; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>📋 Case Review Sheet (CRS)</h1>
+  <span>Seaport Smiles — drella@seaportsmiles.com</span>
+</header>
+
+<div id="toast">✅ Case submitted successfully!</div>
+
+<div class="container">
+  <form id="crsForm">
+
+    <!-- PATIENT NAME -->
+    <div class="patient-bar">
+      <label for="patientName">PATIENT</label>
+      <input type="text" id="patientName" name="entry.671038191"
+             placeholder="Last Name, First Name" required autocomplete="off">
+    </div>
+
+    <!-- ═══ SECTION 1: CASE OVERVIEW ═══ -->
+    <div class="section">
+      <div class="section-header" onclick="toggleSection(this)">
+        <span class="badge">1</span>
+        <h2>Case Overview</h2>
+        <span class="toggle">▾</span>
+      </div>
+      <div class="section-body">
+
+        <div class="field-row">
+          <!-- Case Complexity -->
+          <div class="field">
+            <label class="field-label">Case Complexity <span class="req">*</span></label>
+            <div class="pill-group column" id="complexity-group">
+              <div class="pill"><input type="radio" name="entry.1880789122" id="cx1" value="Bread &amp; butter (Class I / mild)"><label for="cx1">Bread &amp; butter (Class I / mild)</label></div>
+              <div class="pill"><input type="radio" name="entry.1880789122" id="cx2" value="Moderate mechanics"><label for="cx2">Moderate mechanics</label></div>
+              <div class="pill"><input type="radio" name="entry.1880789122" id="cx3" value="Elastic-heavy"><label for="cx3">Elastic-heavy</label></div>
+              <div class="pill"><input type="radio" name="entry.1880789122" id="cx4" value="IPR-heavy"><label for="cx4">IPR-heavy</label></div>
+              <div class="pill"><input type="radio" name="entry.1880789122" id="cx5" value="Surgical / ortho-surg"><label for="cx5">Surgical / ortho-surg</label></div>
+              <div class="pill other-container">
+                <input type="radio" name="entry.1880789122" id="cx6" value="__other_option__" onchange="toggleOther('cx-other', this)">
+                <label for="cx6">Other:</label>
+                <input type="text" class="other-text hidden" id="cx-other" name="entry.1880789122.other_option_response" placeholder="specify…">
+              </div>
+            </div>
+          </div>
+
+          <!-- Type -->
+          <div class="field">
+            <label class="field-label">Type <span class="req">*</span></label>
+            <div class="hint">If Refinement — write 1st, 2nd, 3rd, etc.</div>
+            <div class="pill-group column">
+              <div class="pill"><input type="radio" name="entry.52311826" id="ty1" value="Initial"><label for="ty1">Initial</label></div>
+              <div class="pill"><input type="radio" name="entry.52311826" id="ty2" value="Refinement"><label for="ty2">Refinement</label></div>
+              <div class="pill"><input type="radio" name="entry.52311826" id="ty3" value="DSP Initial"><label for="ty3">DSP Initial</label></div>
+              <div class="pill"><input type="radio" name="entry.52311826" id="ty4" value="DSP Refinement"><label for="ty4">DSP Refinement</label></div>
+              <div class="pill other-container">
+                <input type="radio" name="entry.52311826" id="ty5" value="__other_option__" onchange="toggleOther('ty-other', this)">
+                <label for="ty5">Other:</label>
+                <input type="text" class="other-text hidden" id="ty-other" name="entry.52311826.other_option_response" placeholder="e.g. 2nd refinement">
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="field-row">
+          <!-- Appointment Type -->
+          <div class="field">
+            <label class="field-label">Appointment Type <span class="req">*</span></label>
+            <div class="hint">If ISB+A, specify appliance type under Other</div>
+            <div class="pill-group column">
+              <div class="pill"><input type="radio" name="entry.1792544092" id="at1" value="ISB - Invisalign Start Bond"><label for="at1">ISB — Invisalign Start Bond</label></div>
+              <div class="pill"><input type="radio" name="entry.1792544092" id="at2" value="ISB + A (Appliance)"><label for="at2">ISB + A (Appliance)</label></div>
+              <div class="pill"><input type="radio" name="entry.1792544092" id="at3" value="IDBS - Invisalign Delivery Bond Short"><label for="at3">IDBS — Bond Short</label></div>
+              <div class="pill"><input type="radio" name="entry.1792544092" id="at4" value="IDBL - Invisalign Delivery Bond Long"><label for="at4">IDBL — Bond Long</label></div>
+              <div class="pill"><input type="radio" name="entry.1792544092" id="at5" value="ID - Invisalign Delivery"><label for="at5">ID — Invisalign Delivery</label></div>
+              <div class="pill"><input type="radio" name="entry.1792544092" id="at6" value="IDS - Invisalign Delivery Ship"><label for="at6">IDS — Delivery Ship</label></div>
+              <div class="pill other-container">
+                <input type="radio" name="entry.1792544092" id="at7" value="__other_option__" onchange="toggleOther('at-other', this)">
+                <label for="at7">Other:</label>
+                <input type="text" class="other-text hidden" id="at-other" name="entry.1792544092.other_option_response" placeholder="specify…">
+              </div>
+            </div>
+          </div>
+
+          <!-- Virtual Care Scanning Interval -->
+          <div class="field">
+            <label class="field-label">Virtual Care Scanning Interval <span class="req">*</span></label>
+            <div class="hint">If specialty protocol, specify under Other</div>
+            <div class="pill-group column">
+              <div class="pill"><input type="radio" name="entry.1709079262" id="sc1" value="7 days"><label for="sc1">7 days</label></div>
+              <div class="pill"><input type="radio" name="entry.1709079262" id="sc2" value="4 days (post-surgery, Propel)"><label for="sc2">4 days (post-surgery, Propel)</label></div>
+              <div class="pill"><input type="radio" name="entry.1709079262" id="sc3" value="5 days"><label for="sc3">5 days</label></div>
+              <div class="pill"><input type="radio" name="entry.1709079262" id="sc4" value="10 days (DSP, deep bite, poor compliance)"><label for="sc4">10 days (DSP, deep bite, poor compliance)</label></div>
+              <div class="pill"><input type="radio" name="entry.1709079262" id="sc5" value="14 days - perio/short roots"><label for="sc5">14 days — perio/short roots</label></div>
+              <div class="pill other-container">
+                <input type="radio" name="entry.1709079262" id="sc6" value="__other_option__" onchange="toggleOther('sc-other', this)">
+                <label for="sc6">Other:</label>
+                <input type="text" class="other-text hidden" id="sc-other" name="entry.1709079262.other_option_response" placeholder="specify…">
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Visit Schedule -->
+        <div class="field">
+          <label class="field-label">Visit Schedule <span class="req">*</span></label>
+          <div class="pill-group">
+            <div class="pill"><input type="radio" name="entry.1274030858" id="vs1" value="8"><label for="vs1">8</label></div>
+            <div class="pill"><input type="radio" name="entry.1274030858" id="vs2" value="10"><label for="vs2">10</label></div>
+            <div class="pill"><input type="radio" name="entry.1274030858" id="vs3" value="24"><label for="vs3">24</label></div>
+            <div class="pill other-container">
+              <input type="radio" name="entry.1274030858" id="vs4" value="__other_option__" onchange="toggleOther('vs-other', this)">
+              <label for="vs4">Other:</label>
+              <input type="text" class="other-text hidden" id="vs-other" name="entry.1274030858.other_option_response" placeholder="#…">
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ═══ SECTION 2: RED FLAGS & KEY NOTES ═══ -->
+    <div class="section">
+      <div class="section-header" onclick="toggleSection(this)">
+        <span class="badge">2</span>
+        <h2>Red Flags &amp; Key Notes</h2>
+        <span class="toggle">▾</span>
+      </div>
+      <div class="section-body">
+
+        <div class="field">
+          <label class="field-label">Red Flags (check all that apply)</label>
+          <div class="pill-group">
+            <div class="pill"><input type="checkbox" name="entry.949999283" id="rf0" value="None"><label for="rf0">None</label></div>
+            <div class="pill"><input type="checkbox" name="entry.949999283" id="rf1" value="Short roots"><label for="rf1">Short roots</label></div>
+            <div class="pill"><input type="checkbox" name="entry.949999283" id="rf2" value="Perio / bone loss"><label for="rf2">Perio / bone loss</label></div>
+            <div class="pill"><input type="checkbox" name="entry.949999283" id="rf3" value="Historically non-compliant"><label for="rf3">Historically non-compliant</label></div>
+            <div class="pill"><input type="checkbox" name="entry.949999283" id="rf4" value="High anxiety / difficult / high maintenance"><label for="rf4">High anxiety / difficult</label></div>
+            <div class="pill"><input type="checkbox" name="entry.949999283" id="rf5" value="TMJ Disorder (TMD)"><label for="rf5">TMD</label></div>
+            <div class="pill other-container">
+              <input type="checkbox" name="entry.949999283" id="rf6" value="__other_option__" onchange="toggleOther('rf-other', this)">
+              <label for="rf6">Other:</label>
+              <input type="text" class="other-text hidden" id="rf-other" name="entry.949999283.other_option_response" placeholder="specify…">
+            </div>
+          </div>
+        </div>
+
+        <div class="field">
+          <label class="field-label">Key Notes / Gotchas <span class="req">*</span></label>
+          <textarea name="entry.667328465" rows="3" placeholder="Important case notes, watchpoints, special instructions…"></textarea>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ═══ SECTION 3: IPR PLAN ═══ -->
+    <div class="section">
+      <div class="section-header" onclick="toggleSection(this)">
+        <span class="badge">3</span>
+        <h2>IPR Plan</h2>
+        <span class="toggle">▾</span>
+      </div>
+      <div class="section-body">
+
+        <div class="field-row">
+          <div class="field">
+            <label class="field-label">IPR Plan <span class="req">*</span></label>
+            <div class="hint">Under "other" write stage (aligner #)</div>
+            <div class="pill-group column">
+              <div class="pill"><input type="checkbox" name="entry.556369258" id="ipr1" value="None"><label for="ipr1">None</label></div>
+              <div class="pill"><input type="checkbox" name="entry.556369258" id="ipr2" value="Fake only"><label for="ipr2">Fake only</label></div>
+              <div class="pill"><input type="checkbox" name="entry.556369258" id="ipr3" value="Planned (real)"><label for="ipr3">Planned (real)</label></div>
+              <div class="pill other-container">
+                <input type="checkbox" name="entry.556369258" id="ipr4" value="__other_option__" onchange="toggleOther('ipr-other', this)">
+                <label for="ipr4">Other:</label>
+                <input type="text" class="other-text hidden" id="ipr-other" name="entry.556369258.other_option_response" placeholder="stage #…">
+              </div>
+            </div>
+          </div>
+
+          <div class="field">
+            <label class="field-label">If IPR Planned — Purpose</label>
+            <div class="hint">Select all that apply</div>
+            <div class="pill-group column">
+              <div class="pill"><input type="checkbox" name="entry.1637515813" id="ip1" value="Crowding"><label for="ip1">Crowding</label></div>
+              <div class="pill"><input type="checkbox" name="entry.1637515813" id="ip2" value="BC (Binding Collisions) - Crowding"><label for="ip2">BC — Crowding</label></div>
+              <div class="pill"><input type="checkbox" name="entry.1637515813" id="ip3" value="BC (Binding Collisions) - Expansion"><label for="ip3">BC — Expansion</label></div>
+              <div class="pill"><input type="checkbox" name="entry.1637515813" id="ip4" value="BC (Binding Collisions) - Extrusion (Vertical)"><label for="ip4">BC — Extrusion (V)</label></div>
+              <div class="pill"><input type="checkbox" name="entry.1637515813" id="ip5" value="BC (Binding Collisions) - Intrusion (Vertical)"><label for="ip5">BC — Intrusion (V)</label></div>
+              <div class="pill"><input type="checkbox" name="entry.1637515813" id="ip6" value="Additional Overjet (correct/prevent edge-edge)"><label for="ip6">Additional Overjet</label></div>
+              <div class="pill"><input type="checkbox" name="entry.1637515813" id="ip7" value="OJ Reduction (Non-ex)"><label for="ip7">OJ Reduction (Non-ex)</label></div>
+              <div class="pill"><input type="checkbox" name="entry.1637515813" id="ip8" value="Bolton - max deficiency"><label for="ip8">Bolton — max deficiency</label></div>
+              <div class="pill"><input type="checkbox" name="entry.1637515813" id="ip9" value="Bolton - mand deficiency"><label for="ip9">Bolton — mand deficiency</label></div>
+              <div class="pill"><input type="checkbox" name="entry.1637515813" id="ip10" value="Black Triangles (BTs) - note where under other"><label for="ip10">Black Triangles (BTs)</label></div>
+              <div class="pill other-container">
+                <input type="checkbox" name="entry.1637515813" id="ip11" value="__other_option__" onchange="toggleOther('ip-other', this)">
+                <label for="ip11">Other:</label>
+                <input type="text" class="other-text hidden" id="ip-other" name="entry.1637515813.other_option_response" placeholder="specify…">
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ═══ SECTION 4: ALIGNERS & SCAN ═══ -->
+    <div class="section">
+      <div class="section-header" onclick="toggleSection(this)">
+        <span class="badge">4</span>
+        <h2>Aligners &amp; iTero Scan</h2>
+        <span class="toggle">▾</span>
+      </div>
+      <div class="section-body">
+
+        <div class="field">
+          <label class="field-label">Passive or Overcorrection Aligners? <span class="req">*</span></label>
+          <div class="pill-group">
+            <div class="pill"><input type="radio" name="entry.63432836" id="poc1" value="No"><label for="poc1">No</label></div>
+            <div class="pill"><input type="radio" name="entry.63432836" id="poc2" value="Yes - passive &amp; overcorrection @ the end"><label for="poc2">Passive &amp; overcorrection @ end</label></div>
+            <div class="pill"><input type="radio" name="entry.63432836" id="poc3" value="Fancy overcorrection aligners"><label for="poc3">Fancy overcorrection</label></div>
+            <div class="pill"><input type="radio" name="entry.63432836" id="poc4" value="Yes - passive @ the end"><label for="poc4">Passive @ end</label></div>
+            <div class="pill"><input type="radio" name="entry.63432836" id="poc5" value="Yes - overcorrection @ the end"><label for="poc5">Overcorrection @ end</label></div>
+            <div class="pill other-container">
+              <input type="radio" name="entry.63432836" id="poc6" value="__other_option__" onchange="toggleOther('poc-other', this)">
+              <label for="poc6">Other:</label>
+              <input type="text" class="other-text hidden" id="poc-other" name="entry.63432836.other_option_response" placeholder="specify…">
+            </div>
+          </div>
+        </div>
+
+        <div class="field-row">
+          <div class="field">
+            <label class="field-label">Next iTero Scan is for <span class="req">*</span></label>
+            <div class="pill-group column">
+              <div class="pill"><input type="radio" name="entry.4961035" id="ns1" value="InvCkScan - refinement aligners"><label for="ns1">InvCkScan — refinement aligners</label></div>
+              <div class="pill"><input type="radio" name="entry.4961035" id="ns2" value="InvEvalScan - for retainers"><label for="ns2">InvEvalScan — for retainers</label></div>
+              <div class="pill"><input type="radio" name="entry.4961035" id="ns3" value="Pre-op scan - Print and let CMF know (or other surgeon)"><label for="ns3">Pre-op scan — Print &amp; let CMF know</label></div>
+            </div>
+          </div>
+
+          <div class="field">
+            <label class="field-label">Stage for CkScan / InvEval / Pre-op <span class="req">*</span></label>
+            <input type="text" name="entry.584766712" placeholder="e.g. Stage 18">
+            <br>
+            <label class="field-label" style="margin-top:10px">If Refinement — Stage for InvEval + Detail &amp; Dimples <span class="req">*</span></label>
+            <div class="hint">Put stage under Other</div>
+            <div class="pill-group" style="margin-top:4px">
+              <div class="pill"><input type="radio" name="entry.599325334" id="ive1" value="Not refinement"><label for="ive1">Not refinement</label></div>
+              <div class="pill other-container">
+                <input type="radio" name="entry.599325334" id="ive2" value="__other_option__" onchange="toggleOther('ive-other', this)">
+                <label for="ive2">Other (stage):</label>
+                <input type="text" class="other-text hidden" id="ive-other" name="entry.599325334.other_option_response" placeholder="Stage # + details…">
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ═══ SECTION 5: NON-ENAMEL SURFACES ═══ -->
+    <div class="section">
+      <div class="section-header" onclick="toggleSection(this)">
+        <span class="badge">5</span>
+        <h2>Non-Enamel Surfaces (Crowns &amp; Fillings)</h2>
+        <span class="toggle">▾</span>
+      </div>
+      <div class="section-body">
+        <div class="hint" style="font-size:12px;color:#c0392b;font-weight:600">⚠️ If YES → use MONOBOND for etch</div>
+        <table class="teeth-grid">
+          <thead>
+            <tr>
+              <th>Quadrant</th>
+              <th>1</th><th>2</th><th>3</th><th>4</th><th>5</th><th>6</th><th>7</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="row-label">UR</td>
+              <td><div class="tooth-cb"><input type="checkbox" name="entry.772458733" id="ur1" value="1"><label for="ur1">✓</label></div></td>
+              <td><div class="tooth-cb"><input type="checkbox" name="entry.772458733" id="ur2" value="2"><label for="ur2">✓</label></div></td>
+              <td><div class="tooth-cb"><input type="checkbox" name="entry.772458733" id="ur3" value="3"><label for="ur3">✓</label></div></td>
+              <td><div class="tooth-cb"><input type="checkbox" name="entry.772458733" id="ur4" value="4"><label for="ur4">✓</label></div></td>
+              <td><div class="tooth-cb"><input type="checkbox" name="entry.772458733" id="ur5" value="5"><label for="ur5">✓</label></div></td>
+              <td><div class="tooth-cb"><input type="checkbox" name="entry.772458733" id="ur6" value="6"><label for="ur6">✓</label></div></td>
+              <td><div class="tooth-cb"><input type="checkbox" name="entry.772458733" id="ur7" value="7"><label for="ur7">✓</label></div></td>
+            </tr>
+            <tr>
+              <td class="row-label">UL</td>
+              <td><div class="tooth-cb"><input type="checkbox" name="entry.1152888927" id="ul1" value="1"><label for="ul1">✓</label></div></td>
+              <td><div class="tooth-cb"><input type="checkbox" name="entry.1152888927" id="ul2" value="2"><label for="ul2">✓</label></div></td>
+              <td><div class="tooth-cb"><input type="checkbox" name="entry.1152888927" id="ul3" value="3"><label for="ul3">✓</label></div></td>
+              <td><div class="tooth-cb"><input type="checkbox" name="entry.1152888927" id="ul4" value="4"><label for="ul4">✓</label></div></td>
+              <td><div class="tooth-cb"><input type="checkbox" name="entry.1152888927" id="ul5" value="5"><label for="ul5">✓</label></div></td>
+              <td><div class="tooth-cb"><input type="checkbox" name="entry.1152888927" id="ul6" value="6"><label for="ul6">✓</label></div></td>
+              <td><div class="tooth-cb"><input type="checkbox" name="entry.1152888927" id="ul7" value="7"><label for="ul7">✓</label></div></td>
+            </tr>
+            <tr>
+              <td class="row-label">LR</td>
+              <td><div class="tooth-cb"><input type="checkbox" name="entry.277319412" id="lr1" value="1"><label for="lr1">✓</label></div></td>
+              <td><div class="tooth-cb"><input type="checkbox" name="entry.277319412" id="lr2" value="2"><label for="lr2">✓</label></div></td>
+              <td><div class="tooth-cb"><input type="checkbox" name="entry.277319412" id="lr3" value="3"><label for="lr3">✓</label></div></td>
+              <td><div class="tooth-cb"><input type="checkbox" name="entry.277319412" id="lr4" value="4"><label for="lr4">✓</label></div></td>
+              <td><div class="tooth-cb"><input type="checkbox" name="entry.277319412" id="lr5" value="5"><label for="lr5">✓</label></div></td>
+              <td><div class="tooth-cb"><input type="checkbox" name="entry.277319412" id="lr6" value="6"><label for="lr6">✓</label></div></td>
+              <td><div class="tooth-cb"><input type="checkbox" name="entry.277319412" id="lr7" value="7"><label for="lr7">✓</label></div></td>
+            </tr>
+            <tr>
+              <td class="row-label">LL</td>
+              <td><div class="tooth-cb"><input type="checkbox" name="entry.1319335988" id="ll1" value="1"><label for="ll1">✓</label></div></td>
+              <td><div class="tooth-cb"><input type="checkbox" name="entry.1319335988" id="ll2" value="2"><label for="ll2">✓</label></div></td>
+              <td><div class="tooth-cb"><input type="checkbox" name="entry.1319335988" id="ll3" value="3"><label for="ll3">✓</label></div></td>
+              <td><div class="tooth-cb"><input type="checkbox" name="entry.1319335988" id="ll4" value="4"><label for="ll4">✓</label></div></td>
+              <td><div class="tooth-cb"><input type="checkbox" name="entry.1319335988" id="ll5" value="5"><label for="ll5">✓</label></div></td>
+              <td><div class="tooth-cb"><input type="checkbox" name="entry.1319335988" id="ll6" value="6"><label for="ll6">✓</label></div></td>
+              <td><div class="tooth-cb"><input type="checkbox" name="entry.1319335988" id="ll7" value="7"><label for="ll7">✓</label></div></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ═══ SECTION 6: APPLIANCES & AUXILIARIES ═══ -->
+    <div class="section">
+      <div class="section-header" onclick="toggleSection(this)">
+        <span class="badge">6</span>
+        <h2>Appliances &amp; Auxiliaries</h2>
+        <span class="toggle">▾</span>
+      </div>
+      <div class="section-body">
+
+        <div class="field-row">
+          <div class="field">
+            <label class="field-label">Any Appliances? <span class="req">*</span></label>
+            <div class="hint">If Carriere — write Size for R and L under Other</div>
+            <div class="pill-group column">
+              <div class="pill"><input type="radio" name="entry.133656586" id="ap1" value="None"><label for="ap1">None</label></div>
+              <div class="pill"><input type="radio" name="entry.133656586" id="ap2" value="MEA/RPE"><label for="ap2">MEA/RPE</label></div>
+              <div class="pill"><input type="radio" name="entry.133656586" id="ap3" value="Carriere - Class II"><label for="ap3">Carriere — Class II</label></div>
+              <div class="pill"><input type="radio" name="entry.133656586" id="ap4" value="Carriere - Class III"><label for="ap4">Carriere — Class III</label></div>
+              <div class="pill other-container">
+                <input type="radio" name="entry.133656586" id="ap5" value="__other_option__" onchange="toggleOther('ap-other', this)">
+                <label for="ap5">Other:</label>
+                <input type="text" class="other-text hidden" id="ap-other" name="entry.133656586.other_option_response" placeholder="size R: __ L: __">
+              </div>
+            </div>
+          </div>
+
+          <div class="field">
+            <label class="field-label">Any Auxiliaries Beyond Standard? <span class="req">*</span></label>
+            <div class="hint">Buttons, elastics, dimples, tongue tamers, open bite ramps, propel</div>
+            <div class="pill-group column" style="margin-top:6px">
+              <div class="pill"><input type="radio" name="entry.1010378094" id="aux1" value="No" onchange="toggleElasticSection()"><label for="aux1">No</label></div>
+              <div class="pill"><input type="radio" name="entry.1010378094" id="aux2" value="Yes" onchange="toggleElasticSection()"><label for="aux2">Yes</label></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="field">
+          <label class="field-label">Misc Concerns</label>
+          <div class="pill-group">
+            <div class="pill"><input type="checkbox" name="entry.549593546" id="mc1" value="Print models at Ck Scan for Sx study models"><label for="mc1">Print models @ CkScan (Sx study)</label></div>
+            <div class="pill"><input type="checkbox" name="entry.549593546" id="mc2" value="Order Class II Carriere"><label for="mc2">Order Class II Carriere</label></div>
+            <div class="pill"><input type="checkbox" name="entry.549593546" id="mc3" value="Print model to measure for Carriere Motion"><label for="mc3">Print model — Carriere Motion</label></div>
+            <div class="pill other-container">
+              <input type="checkbox" name="entry.549593546" id="mc4" value="__other_option__" onchange="toggleOther('mc-other', this)">
+              <label for="mc4">Other:</label>
+              <input type="text" class="other-text hidden" id="mc-other" name="entry.549593546.other_option_response" placeholder="specify…">
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ═══ SECTION 7: SUPPLEMENTARY INFO ═══ -->
+    <div class="section">
+      <div class="section-header" onclick="toggleSection(this)">
+        <span class="badge">7</span>
+        <h2>Supplementary Info</h2>
+        <span class="toggle">▾</span>
+      </div>
+      <div class="section-body">
+
+        <div class="field-row">
+          <div class="field">
+            <label class="field-label">Propel</label>
+            <div class="hint">If propel — date for procedure under Other</div>
+            <div class="pill-group column">
+              <div class="pill"><input type="radio" name="entry.478530202" id="pr1" value="No"><label for="pr1">No</label></div>
+              <div class="pill"><input type="radio" name="entry.478530202" id="pr2" value="Yes - 1 week before ISB"><label for="pr2">Yes — 1 week before ISB</label></div>
+              <div class="pill"><input type="radio" name="entry.478530202" id="pr3" value="Yes - down the line"><label for="pr3">Yes — down the line</label></div>
+              <div class="pill other-container">
+                <input type="radio" name="entry.478530202" id="pr4" value="__other_option__" onchange="toggleOther('pr-other', this)">
+                <label for="pr4">Other:</label>
+                <input type="text" class="other-text hidden" id="pr-other" name="entry.478530202.other_option_response" placeholder="date / detail…">
+              </div>
+            </div>
+          </div>
+
+          <div class="field">
+            <label class="field-label">Required Supplementary Consents</label>
+            <div class="pill-group column">
+              <div class="pill"><input type="checkbox" name="entry.2095984688" id="rc1" value="No"><label for="rc1">No</label></div>
+              <div class="pill"><input type="checkbox" name="entry.2095984688" id="rc2" value="Jaw Surgery"><label for="rc2">Jaw Surgery</label></div>
+              <div class="pill"><input type="checkbox" name="entry.2095984688" id="rc3" value="Jaw Surgery Refusal"><label for="rc3">Jaw Surgery Refusal</label></div>
+              <div class="pill"><input type="checkbox" name="entry.2095984688" id="rc4" value="Periodontal History"><label for="rc4">Periodontal History</label></div>
+              <div class="pill"><input type="checkbox" name="entry.2095984688" id="rc5" value="Propel"><label for="rc5">Propel</label></div>
+              <div class="pill"><input type="checkbox" name="entry.2095984688" id="rc6" value="Root Resorption"><label for="rc6">Root Resorption</label></div>
+              <div class="pill other-container">
+                <input type="checkbox" name="entry.2095984688" id="rc7" value="__other_option__" onchange="toggleOther('rc-other', this)">
+                <label for="rc7">Other:</label>
+                <input type="text" class="other-text hidden" id="rc-other" name="entry.2095984688.other_option_response" placeholder="specify…">
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="field-row">
+          <div class="field">
+            <label class="field-label">Extractions?</label>
+            <div class="hint">Write tooth numbers if planned under Other</div>
+            <div class="pill-group">
+              <div class="pill"><input type="checkbox" name="entry.1221246996" id="ex1" value="none"><label for="ex1">None</label></div>
+              <div class="pill other-container">
+                <input type="checkbox" name="entry.1221246996" id="ex2" value="__other_option__" onchange="toggleOther('ex-other', this)">
+                <label for="ex2">Other:</label>
+                <input type="text" class="other-text hidden" id="ex-other" name="entry.1221246996.other_option_response" placeholder="tooth numbers…">
+              </div>
+            </div>
+          </div>
+
+          <div class="field">
+            <label class="field-label">Modifications / Accessories / Pontics</label>
+            <div class="hint">Add tooth numbers in Palmer notation under Other</div>
+            <div class="pill-group column">
+              <div class="pill"><input type="checkbox" name="entry.1979273483" id="mod1" value="Attachment wells on lingual U&amp;L 3-3 are &quot;tongue tamers&quot; - NOT real attachments, do not fill the template, do not bond."><label for="mod1">Tongue tamers (lingual U&amp;L 3-3)</label></div>
+              <div class="pill"><input type="checkbox" name="entry.1979273483" id="mod2" value="Posterior bite pillows for open bite"><label for="mod2">Posterior bite pillows (open bite)</label></div>
+              <div class="pill"><input type="checkbox" name="entry.1979273483" id="mod3" value="Manual dimples or power ridges"><label for="mod3">Manual dimples / power ridges</label></div>
+              <div class="pill"><input type="checkbox" name="entry.1979273483" id="mod4" value="Manual hooks"><label for="mod4">Manual hooks</label></div>
+              <div class="pill"><input type="checkbox" name="entry.1979273483" id="mod5" value="Manual cutouts (for buttons)"><label for="mod5">Manual cutouts (for buttons)</label></div>
+              <div class="pill"><input type="checkbox" name="entry.1979273483" id="mod6" value="Pontic (s) - give patient wax to fill pontic"><label for="mod6">Pontic(s) — give wax</label></div>
+              <div class="pill"><input type="checkbox" name="entry.1979273483" id="mod7" value="PBRs (Precision Bite Ramps)"><label for="mod7">PBRs (Precision Bite Ramps)</label></div>
+              <div class="pill other-container">
+                <input type="checkbox" name="entry.1979273483" id="mod8" value="__other_option__" onchange="toggleOther('mod-other', this)">
+                <label for="mod8">Other:</label>
+                <input type="text" class="other-text hidden" id="mod-other" name="entry.1979273483.other_option_response" placeholder="tooth numbers / details…">
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ═══ SECTION 8: ELASTIC PROTOCOL (conditional) ═══ -->
+    <div class="section" id="elasticSection">
+      <div class="section-header" onclick="toggleSection(this)">
+        <span class="badge">8</span>
+        <h2>Elastic Protocol</h2>
+        <span class="toggle">▾</span>
+      </div>
+      <div class="section-body">
+
+        <!-- Is patient wearing elastics? -->
+        <div class="field">
+          <label class="field-label">Is the Patient Wearing Elastics? <span class="req">*</span></label>
+          <div class="pill-group">
+            <div class="pill"><input type="radio" name="entry.674132804" id="el1" value="No/Probably Not"><label for="el1">No / Probably Not</label></div>
+            <div class="pill"><input type="radio" name="entry.674132804" id="el2" value="Maybe at the end to settle bite"><label for="el2">Maybe at end — settle bite</label></div>
+            <div class="pill"><input type="radio" name="entry.674132804" id="el3" value="Yes - start at tray 1"><label for="el3">Yes — start at tray 1</label></div>
+            <div class="pill"><input type="radio" name="entry.674132804" id="el4" value="Yes - start at 1st InvCk"><label for="el4">Yes — start at 1st InvCk</label></div>
+            <div class="pill"><input type="radio" name="entry.674132804" id="el5" value="Possibly/Probably"><label for="el5">Possibly / Probably</label></div>
+          </div>
+        </div>
+
+        <!-- Buttons UPPER -->
+        <div class="field">
+          <label class="field-label">Buttons — Upper</label>
+          <div class="hint">Add tooth numbers in Palmer Notation</div>
+          <table class="matrix-table" style="margin-top:6px">
+            <thead>
+              <tr>
+                <th>Surface</th>
+                <th colspan="14">Teeth</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="row-label">Buccal</td>
+                <td colspan="14">
+                  <div class="chip-group">
+                    <script>
+                      const upperTeeth = ['UR1','UL1','UR2','UL2','UR3','UL3','UR4','UL4','UR5','UL5','UR6','UL6','UR7','UL7'];
+                      upperTeeth.forEach((t,i) => {
+                        document.write(`<div class="chip"><input type="checkbox" name="entry.33672797" id="ub${i}" value="${t}"><label for="ub${i}">${t}</label></div>`);
+                      });
+                    </script>
+                  </div>
+                </td>
+              </tr>
+              <tr>
+                <td class="row-label">Lingual</td>
+                <td colspan="14">
+                  <div class="chip-group">
+                    <script>
+                      upperTeeth.forEach((t,i) => {
+                        document.write(`<div class="chip"><input type="checkbox" name="entry.715805366" id="ul_ling${i}" value="${t}"><label for="ul_ling${i}">${t}</label></div>`);
+                      });
+                    </script>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Buttons LOWER -->
+        <div class="field">
+          <label class="field-label">Buttons — Lower</label>
+          <table class="matrix-table" style="margin-top:6px">
+            <tbody>
+              <tr>
+                <td class="row-label">Buccal</td>
+                <td>
+                  <div class="chip-group">
+                    <script>
+                      const lowerTeeth = ['LR1','LL1','LR2','LL2','LR3','LL3','LR4','LL4','LR5','LL5','LR6','LL6','LR7','LL7'];
+                      lowerTeeth.forEach((t,i) => {
+                        document.write(`<div class="chip"><input type="checkbox" name="entry.471427063" id="lb${i}" value="${t}"><label for="lb${i}">${t}</label></div>`);
+                      });
+                    </script>
+                  </div>
+                </td>
+              </tr>
+              <tr>
+                <td class="row-label">Lingual</td>
+                <td>
+                  <div class="chip-group">
+                    <script>
+                      lowerTeeth.forEach((t,i) => {
+                        document.write(`<div class="chip"><input type="checkbox" name="entry.2120880772" id="ll_ling${i}" value="${t}"><label for="ll_ling${i}">${t}</label></div>`);
+                      });
+                    </script>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Type and Strength -->
+        <div class="field">
+          <label class="field-label">Type and Strength</label>
+          <table class="matrix-table" style="margin-top:6px">
+            <thead>
+              <tr>
+                <th>Elastic Type</th>
+                <th colspan="6">Size / Force</th>
+              </tr>
+            </thead>
+            <tbody>
+              <script>
+                const elasticTypes = [
+                  ['Class I', 'entry.122431714', 'et0'],
+                  ['Class II', 'entry.1852581141', 'et1'],
+                  ['Class III', 'entry.1981605997', 'et2'],
+                  ['Vertical Elastic', 'entry.360508039', 'et3'],
+                  ['Cross Elastic — crossbite', 'entry.234970416', 'et4'],
+                  ['Cross Elastic — Sagittal', 'entry.2029748617', 'et5'],
+                  ['Vertical — 334 Triangles', 'entry.1184857976', 'et6'],
+                  ['Slingshot for tracking', 'entry.1868307879', 'et7']
+                ];
+                const sizes = ['3/16" XH (Force 2)','3/16" H','3/16" M','1/4" M','1/4" H (Force 1)','1/8" M'];
+                elasticTypes.forEach(([label, name, prefix]) => {
+                  let tds = sizes.map((s,j) =>
+                    `<div class="chip"><input type="checkbox" name="${name}" id="${prefix}_${j}" value="${s}"><label for="${prefix}_${j}">${s}</label></div>`
+                  ).join('');
+                  document.write(`<tr><td class="row-label">${label}</td><td><div class="chip-group">${tds}</div></td></tr>`);
+                });
+              </script>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Elastic Schedule -->
+        <div class="field">
+          <label class="field-label">Elastic Schedule</label>
+          <table class="matrix-table" style="margin-top:6px">
+            <thead>
+              <tr>
+                <th>Side</th>
+                <th colspan="6">Schedule</th>
+              </tr>
+            </thead>
+            <tbody>
+              <script>
+                const schedOpts = ['FT','NTO','No Elastic','Class II','Class III','Class I'];
+                const schedSides = [
+                  ['Right', 'entry.582777397', 'sr'],
+                  ['Left', 'entry.1072872478', 'sl'],
+                  ['Anterior', 'entry.1068170684', 'sa']
+                ];
+                schedSides.forEach(([label, name, prefix]) => {
+                  let cells = schedOpts.map((o,j) =>
+                    `<div class="chip"><input type="checkbox" name="${name}" id="${prefix}_${j}" value="${o}"><label for="${prefix}_${j}">${o}</label></div>`
+                  ).join('');
+                  document.write(`<tr><td class="row-label">${label}</td><td><div class="chip-group">${cells}</div></td></tr>`);
+                });
+              </script>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Anything special? -->
+        <div class="field">
+          <label class="field-label">Anything "Special"?</label>
+          <div class="hint">TADs, Power arms, lingual buttons w/ elastomeric for rotations, etc.</div>
+          <div class="pill-group column" style="margin-top:4px">
+            <div class="pill"><input type="checkbox" name="entry.2057393459" id="sp1" value="None"><label for="sp1">None</label></div>
+            <div class="pill"><input type="checkbox" name="entry.2057393459" id="sp2" value="Start 3/16H the progress to 3/16 XH after ~4-6 weeks"><label for="sp2">Start 3/16H → 3/16 XH after ~4-6 wks</label></div>
+            <div class="pill"><input type="checkbox" name="entry.2057393459" id="sp3" value="i.e., TADs, Power arms, lingual buttons w elastomeric for rotations - notes under other"><label for="sp3">TADs / Power arms / lingual buttons</label></div>
+            <div class="pill other-container">
+              <input type="checkbox" name="entry.2057393459" id="sp4" value="__other_option__" onchange="toggleOther('sp-other', this)">
+              <label for="sp4">Other:</label>
+              <input type="text" class="other-text hidden" id="sp-other" name="entry.2057393459.other_option_response" placeholder="specify…">
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </form><!-- end form -->
+</div>
+
+<!-- SUBMIT BAR -->
+<div class="submit-bar">
+  <button type="button" class="btn-clear" onclick="clearForm()">Clear Form</button>
+  <div style="font-size:12px;color:#94a3b8;text-align:center">
+    Submits directly to Google Forms · <strong>drella@seaportsmiles.com</strong>
+  </div>
+  <button type="button" class="btn-submit" onclick="submitForm()">✓ Submit CRS</button>
+</div>
+
+<script>
+// ─── TOGGLE SECTION COLLAPSE ───────────────────────────────────────────
+function toggleSection(header) {
+  const body = header.nextElementSibling;
+  const toggle = header.querySelector('.toggle');
+  if (body.classList.contains('hidden')) {
+    body.classList.remove('hidden');
+    header.classList.remove('collapsed');
+  } else {
+    body.classList.add('hidden');
+    header.classList.add('collapsed');
+  }
+}
+
+// ─── TOGGLE "OTHER" TEXT BOX ────────────────────────────────────────────
+function toggleOther(inputId, checkbox) {
+  const el = document.getElementById(inputId);
+  if (!el) return;
+  if (checkbox.checked) {
+    el.classList.remove('hidden');
+    el.focus();
+  } else {
+    el.classList.add('hidden');
+    el.value = '';
+  }
+}
+
+// ─── SHOW/HIDE ELASTIC SECTION ──────────────────────────────────────────
+function toggleElasticSection() {
+  const aux2 = document.getElementById('aux2');
+  const section = document.getElementById('elasticSection');
+  if (aux2 && aux2.checked) {
+    section.classList.add('visible');
+    section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  } else {
+    section.classList.remove('visible');
+  }
+}
+
+// ─── HELPERS: READ FORM VALUES ──────────────────────────────────────────
+function getChecked(name) {
+  const vals = [];
+  document.querySelectorAll(`input[name="${name}"]:checked`).forEach(el => {
+    if (el.value === '__other_option__') {
+      const t = document.querySelector(`input[name="${name}.other_option_response"]`);
+      vals.push(t && t.value ? 'Other: ' + t.value : 'Other');
+    } else { vals.push(el.value); }
+  });
+  return vals;
+}
+function getText(name) {
+  const el = document.querySelector(`[name="${name}"]`);
+  return el ? el.value.trim() : '';
+}
+
+// ─── BUILD RECEIPT DATA ─────────────────────────────────────────────────
+function collectCaseData() {
+  const ts = new Date();
+  const dateStr = ts.toLocaleDateString('en-US',{weekday:'short',year:'numeric',month:'short',day:'numeric'});
+  const timeStr = ts.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'});
+
+  // Non-enamel teeth
+  const neTeeth = [];
+  [['UR','entry.772458733'],['UL','entry.1152888927'],['LR','entry.277319412'],['LL','entry.1319335988']]
+    .forEach(([quad,name]) => {
+      const vals = getChecked(name);
+      if (vals.length) neTeeth.push(quad + ': ' + vals.join(', '));
+    });
+
+  // Elastic type/strength
+  const elasticStrength = [];
+  [['Class I','entry.122431714'],['Class II','entry.1852581141'],['Class III','entry.1981605997'],
+   ['Vertical','entry.360508039'],['Cross — crossbite','entry.234970416'],
+   ['Cross — Sagittal','entry.2029748617'],['334 Triangles','entry.1184857976'],
+   ['Slingshot','entry.1868307879']]
+    .forEach(([label,name]) => {
+      const vals = getChecked(name);
+      if (vals.length) elasticStrength.push(label + ': ' + vals.join(', '));
+    });
+
+  // Elastic schedule
+  const elasticSched = [];
+  [['Right','entry.582777397'],['Left','entry.1072872478'],['Anterior','entry.1068170684']]
+    .forEach(([label,name]) => {
+      const vals = getChecked(name);
+      if (vals.length) elasticSched.push(label + ': ' + vals.join(', '));
+    });
+
+  // Buttons
+  const btnsUpperB = getChecked('entry.33672797');
+  const btnsUpperL = getChecked('entry.715805366');
+  const btnsLowerB = getChecked('entry.471427063');
+  const btnsLowerL = getChecked('entry.2120880772');
+
+  return {
+    meta: { date: dateStr, time: timeStr },
+    patient: getText('entry.671038191'),
+    complexity: getChecked('entry.1880789122').join(''),
+    type: getChecked('entry.52311826').join(''),
+    apptType: getChecked('entry.1792544092').join(''),
+    scanInterval: getChecked('entry.1709079262').join(''),
+    visitSchedule: getChecked('entry.1274030858').join(''),
+    redFlags: getChecked('entry.949999283'),
+    keyNotes: getText('entry.667328465'),
+    iprPlan: getChecked('entry.556369258'),
+    iprPurpose: getChecked('entry.1637515813'),
+    passiveOC: getChecked('entry.63432836').join(''),
+    nextScan: getChecked('entry.4961035').join(''),
+    scanStage: getText('entry.584766712'),
+    invEvalStage: getChecked('entry.599325334').join(''),
+    neTeeth,
+    miscConcerns: getChecked('entry.549593546'),
+    appliances: getChecked('entry.133656586').join(''),
+    auxiliaries: getChecked('entry.1010378094').join(''),
+    propel: getChecked('entry.478530202').join(''),
+    consents: getChecked('entry.2095984688'),
+    extractions: getChecked('entry.1221246996'),
+    mods: getChecked('entry.1979273483'),
+    elasticsWorn: getChecked('entry.674132804').join(''),
+    btnsUpperB, btnsUpperL, btnsLowerB, btnsLowerL,
+    elasticStrength, elasticSched,
+    special: getChecked('entry.2057393459'),
+  };
+}
+
+// ─── GENERATE RECEIPT HTML ──────────────────────────────────────────────
+function generateReceiptHTML(d) {
+  const row = (label, val) => {
+    if (!val || (Array.isArray(val) && !val.length)) return '';
+    const v = Array.isArray(val) ? val.map(x => `<span class="tag">${x}</span>`).join(' ') : `<span class="val">${val}</span>`;
+    return `<tr><td class="lbl">${label}</td><td>${v}</td></tr>`;
+  };
+
+  const hasElastics = d.auxiliaries === 'Yes' || (d.elasticsWorn && d.elasticsWorn !== 'No/Probably Not');
+  const hasNE = d.neTeeth.length > 0;
+
+  const elasticSection = hasElastics ? `
+    <div class="section">
+      <div class="sec-title">🦷 Elastic Protocol</div>
+      <table>
+        ${row('Elastics Worn?', d.elasticsWorn)}
+        ${(d.btnsUpperB.length||d.btnsUpperL.length) ? row('Buttons Upper', [...d.btnsUpperB.map(x=>'Buccal: '+x),...d.btnsUpperL.map(x=>'Lingual: '+x)]) : ''}
+        ${(d.btnsLowerB.length||d.btnsLowerL.length) ? row('Buttons Lower', [...d.btnsLowerB.map(x=>'Buccal: '+x),...d.btnsLowerL.map(x=>'Lingual: '+x)]) : ''}
+        ${row('Type & Strength', d.elasticStrength)}
+        ${row('Elastic Schedule', d.elasticSched)}
+        ${row('Special?', d.special)}
+      </table>
+    </div>` : '';
+
+  return `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>CRS — ${d.patient || 'Case'}</title>
+<style>
+  :root{--blue:#3b6fa0;--blue-lt:#eaf1f9;--green:#3a9e6e;--red:#e07b7b;--border:#d0d9e3;--bg:#f4f7fa;--text:#1e293b;--muted:#64748b}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;font-size:13.5px;color:var(--text);padding-bottom:40px}
+  .header{background:var(--blue);color:#fff;padding:18px 28px;display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+  .header-left h1{font-size:22px;font-weight:800;letter-spacing:-.3px}
+  .header-left .sub{font-size:12px;opacity:.75;margin-top:3px}
+  .header-right{text-align:right;font-size:12px;opacity:.85;line-height:1.7}
+  .badge-bar{background:var(--blue-lt);border-bottom:1px solid var(--border);padding:10px 28px;display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+  .badge{background:var(--blue);color:#fff;border-radius:20px;padding:3px 11px;font-size:11.5px;font-weight:700;white-space:nowrap}
+  .badge.green{background:var(--green)}
+  .badge.red{background:var(--red)}
+  .container{max-width:800px;margin:24px auto;padding:0 16px;display:grid;gap:14px}
+  .section{background:#fff;border-radius:10px;box-shadow:0 2px 10px rgba(59,111,160,.08);overflow:hidden}
+  .sec-title{background:var(--blue-lt);border-bottom:1px solid var(--border);padding:9px 18px;font-size:11.5px;font-weight:800;color:#1e3a5f;text-transform:uppercase;letter-spacing:.6px}
+  table{width:100%;border-collapse:collapse}
+  tr{border-bottom:1px solid #f1f5f9}
+  tr:last-child{border-bottom:none}
+  td{padding:8px 18px;vertical-align:top}
+  td.lbl{width:38%;font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.3px;padding-right:8px;white-space:nowrap}
+  .val{color:var(--text);font-weight:500}
+  .tag{display:inline-block;background:var(--blue-lt);border:1px solid var(--border);border-radius:14px;padding:2px 9px;font-size:12px;color:#1e3a5f;margin:2px 2px 2px 0;font-weight:500}
+  .notes{padding:10px 18px;font-size:13px;color:var(--text);background:#fffdf0;border-top:1px solid #f0e8c0;line-height:1.6;white-space:pre-wrap;font-style:italic}
+  .print-bar{background:#fff;border-top:2px solid var(--border);position:fixed;bottom:0;left:0;right:0;padding:10px 24px;display:flex;justify-content:space-between;align-items:center;z-index:100;box-shadow:0 -2px 10px rgba(0,0,0,.07)}
+  .btn{border:none;padding:9px 22px;border-radius:7px;font-size:13px;font-weight:700;cursor:pointer}
+  .btn-print{background:var(--blue);color:#fff}
+  .btn-print:hover{background:#2d5a8a}
+  .btn-copy{background:transparent;border:1.5px solid var(--border);color:var(--muted)}
+  .btn-copy:hover{border-color:var(--blue);color:var(--blue)}
+  .timestamp{font-size:11.5px;color:var(--muted)}
+  @media print{.print-bar{display:none}body{background:#fff}.section{box-shadow:none;border:1px solid var(--border)}}
+</style></head><body>
+<div class="header">
+  <div class="header-left">
+    <div class="sub">Seaport Smiles · Case Review Sheet</div>
+    <h1>${d.patient || '—'}</h1>
+  </div>
+  <div class="header-right">
+    <div><strong>${d.meta.date}</strong></div>
+    <div>${d.meta.time}</div>
+    <div style="margin-top:4px;opacity:.7">drella@seaportsmiles.com</div>
+  </div>
+</div>
+
+<div class="badge-bar">
+  ${d.complexity ? `<span class="badge">${d.complexity}</span>` : ''}
+  ${d.type ? `<span class="badge green">${d.type}</span>` : ''}
+  ${d.apptType ? `<span class="badge">${d.apptType}</span>` : ''}
+  ${d.redFlags.filter(f=>f!=='None').length ? d.redFlags.filter(f=>f!=='None').map(f=>`<span class="badge red">⚠ ${f}</span>`).join('') : '<span class="badge green">✓ No red flags</span>'}
+</div>
+
+<div class="container">
+
+  <div class="section">
+    <div class="sec-title">📋 Case Overview</div>
+    <table>
+      ${row('Complexity', d.complexity)}
+      ${row('Type', d.type)}
+      ${row('Appointment Type', d.apptType)}
+      ${row('Scan Interval', d.scanInterval)}
+      ${row('Visit Schedule', d.visitSchedule)}
+      ${row('Passive / OC', d.passiveOC)}
+    </table>
+    ${d.keyNotes ? `<div class="notes">${d.keyNotes}</div>` : ''}
+  </div>
+
+  <div class="section">
+    <div class="sec-title">🔴 Red Flags</div>
+    <table>${row('Flags', d.redFlags.length ? d.redFlags : ['None'])}</table>
+  </div>
+
+  <div class="section">
+    <div class="sec-title">✂️ IPR Plan</div>
+    <table>
+      ${row('IPR Plan', d.iprPlan)}
+      ${row('Purpose', d.iprPurpose)}
+    </table>
+  </div>
+
+  <div class="section">
+    <div class="sec-title">📡 iTero Scan</div>
+    <table>
+      ${row('Next Scan For', d.nextScan)}
+      ${row('Stage', d.scanStage)}
+      ${row('InvEval Stage', d.invEvalStage)}
+    </table>
+  </div>
+
+  ${hasNE ? `<div class="section">
+    <div class="sec-title">👑 Non-Enamel Surfaces (use MONOBOND)</div>
+    <table>${row('Teeth', d.neTeeth)}</table>
+  </div>` : ''}
+
+  <div class="section">
+    <div class="sec-title">🔧 Appliances &amp; Auxiliaries</div>
+    <table>
+      ${row('Appliances', d.appliances)}
+      ${row('Auxiliaries?', d.auxiliaries)}
+      ${row('Misc Concerns', d.miscConcerns)}
+      ${row('Modifications', d.mods)}
+    </table>
+  </div>
+
+  <div class="section">
+    <div class="sec-title">📄 Supplementary</div>
+    <table>
+      ${row('Propel', d.propel)}
+      ${row('Consents', d.consents)}
+      ${row('Extractions', d.extractions)}
+    </table>
+  </div>
+
+  ${elasticSection}
+
+</div>
+
+<div class="print-bar">
+  <span class="timestamp">CRS submitted ${d.meta.date} at ${d.meta.time}</span>
+  <div style="display:flex;gap:8px">
+    <button class="btn btn-copy" onclick="copyLink()">🔗 Copy Link</button>
+    <button class="btn btn-print" onclick="window.print()">🖨️ Print / Save PDF</button>
+  </div>
+</div>
+
+<script>
+function copyLink(){
+  navigator.clipboard.writeText(window.location.href).then(()=>{
+    const b=document.querySelector('.btn-copy');
+    b.textContent='✓ Copied!';
+    setTimeout(()=>b.textContent='🔗 Copy Link',2000);
+  });
+}
+<\/script>
+</body></html>`;
+}
+
+// ─── OPEN RECEIPT IN NEW TAB ─────────────────────────────────────────────
+function openReceipt(data) {
+  try {
+    const encoded = btoa(unescape(encodeURIComponent(JSON.stringify(data))));
+    window.open('CRS_Receipt.html#' + encoded, '_blank');
+  } catch(e) {
+    // fallback: render inline as blob if receipt file not found
+    const blob = new Blob([generateReceiptHTML(data)], { type: 'text/html' });
+    window.open(URL.createObjectURL(blob), '_blank');
+  }
+}
+
+// ─── SUBMIT FORM ────────────────────────────────────────────────────────
+async function submitForm() {
+  const form = document.getElementById('crsForm');
+
+  // Basic validation: patient name required
+  const name = document.getElementById('patientName');
+  if (!name.value.trim()) {
+    name.focus();
+    name.style.borderBottomColor = '#e07b7b';
+    showToast('Please enter the patient name.', true);
+    return;
+  }
+  name.style.borderBottomColor = '';
+
+  // Snapshot data BEFORE submit (for receipt)
+  const caseData = collectCaseData();
+
+  const params = new URLSearchParams();
+
+  // Text inputs + textareas
+  form.querySelectorAll('input[type="text"], textarea').forEach(el => {
+    if (el.name && !el.classList.contains('other-text')) {
+      params.append(el.name, el.value);
+    }
+  });
+
+  // Radio buttons
+  form.querySelectorAll('input[type="radio"]:checked').forEach(el => {
+    if (el.value === '__other_option__') {
+      params.append(el.name, '__other_option__');
+      const other = form.querySelector(`input[name="${el.name}.other_option_response"]`);
+      if (other) params.append(other.name, other.value);
+    } else {
+      params.append(el.name, el.value);
+    }
+  });
+
+  // Checkboxes
+  form.querySelectorAll('input[type="checkbox"]:checked').forEach(el => {
+    if (el.value === '__other_option__') {
+      params.append(el.name, '__other_option__');
+      const other = form.querySelector(`input[name="${el.name}.other_option_response"]`);
+      if (other) params.append(other.name, other.value);
+    } else {
+      params.append(el.name, el.value);
+    }
+  });
+
+  const submitBtn = document.querySelector('.btn-submit');
+  submitBtn.textContent = 'Submitting…';
+  submitBtn.disabled = true;
+
+  // Submit via hidden iframe — most reliable method for Google Forms
+  const iframeName = 'crs_submit_' + Date.now();
+  const iframe = document.createElement('iframe');
+  iframe.name = iframeName;
+  iframe.style.display = 'none';
+  document.body.appendChild(iframe);
+
+  const hiddenForm = document.createElement('form');
+  hiddenForm.action = 'https://docs.google.com/forms/d/e/1FAIpQLSfDAjhlJvHzPepX_skeLs8oBIcVakB0-HZUZeJOgB_BpkHz5A/formResponse';
+  hiddenForm.method = 'POST';
+  hiddenForm.target = iframeName;
+  hiddenForm.style.display = 'none';
+
+  for (const [key, value] of params) {
+    const input = document.createElement('input');
+    input.type = 'hidden';
+    input.name = key;
+    input.value = value;
+    hiddenForm.appendChild(input);
+  }
+
+  document.body.appendChild(hiddenForm);
+  hiddenForm.submit();
+
+  // Clean up hidden form after submission completes
+  setTimeout(() => {
+    try { document.body.removeChild(hiddenForm); document.body.removeChild(iframe); } catch(e) {}
+  }, 5000);
+
+  // Open receipt and show success immediately
+  openReceipt(caseData);
+  showToast('✅ ' + (caseData.patient || 'Case') + ' submitted!');
+  submitBtn.textContent = '✓ Submit CRS';
+  submitBtn.disabled = false;
+
+  // Reset form after brief delay
+  setTimeout(() => {
+    form.reset();
+    document.querySelectorAll('.other-text').forEach(el => {
+      el.classList.add('hidden');
+      el.value = '';
+    });
+    document.getElementById('elasticSection').classList.remove('visible');
+  }, 1500);
+}
+
+// ─── CLEAR FORM ─────────────────────────────────────────────────────────
+function clearForm() {
+  if (!confirm('Clear all fields?')) return;
+  document.getElementById('crsForm').reset();
+  document.querySelectorAll('.other-text').forEach(el => {
+    el.classList.add('hidden');
+    el.value = '';
+  });
+  document.getElementById('elasticSection').classList.remove('visible');
+}
+
+// ─── TOAST NOTIFICATION ─────────────────────────────────────────────────
+function showToast(msg, isError = false) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = isError ? 'error' : '';
+  t.style.display = 'block';
+  setTimeout(() => { t.style.display = 'none'; }, 3500);
+}
+</script>
+
+</body>
+</html>

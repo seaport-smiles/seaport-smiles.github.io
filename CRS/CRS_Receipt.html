@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CRS Receipt — Seaport Smiles</title>
+<style>
+  :root{--blue:#3b6fa0;--blue-lt:#eaf1f9;--green:#3a9e6e;--red:#e07b7b;--border:#d0d9e3;--bg:#f4f7fa;--text:#1e293b;--muted:#64748b}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;font-size:13.5px;color:var(--text);padding-bottom:72px}
+  .header{background:var(--blue);color:#fff;padding:18px 28px;display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+  .header-left h1{font-size:22px;font-weight:800;letter-spacing:-.3px}
+  .header-left .sub{font-size:12px;opacity:.75;margin-top:3px}
+  .header-right{text-align:right;font-size:12px;opacity:.85;line-height:1.7}
+  .badge-bar{background:var(--blue-lt);border-bottom:1px solid var(--border);padding:10px 28px;display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+  .badge{background:var(--blue);color:#fff;border-radius:20px;padding:3px 11px;font-size:11.5px;font-weight:700;white-space:nowrap}
+  .badge.green{background:var(--green)}
+  .badge.red{background:var(--red)}
+  .container{max-width:800px;margin:24px auto;padding:0 16px;display:grid;gap:14px}
+  .section{background:#fff;border-radius:10px;box-shadow:0 2px 10px rgba(59,111,160,.08);overflow:hidden}
+  .sec-title{background:var(--blue-lt);border-bottom:1px solid var(--border);padding:9px 18px;font-size:11.5px;font-weight:800;color:#1e3a5f;text-transform:uppercase;letter-spacing:.6px}
+  table{width:100%;border-collapse:collapse}
+  tr{border-bottom:1px solid #f1f5f9}
+  tr:last-child{border-bottom:none}
+  td{padding:8px 18px;vertical-align:top}
+  td.lbl{width:38%;font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.3px;padding-right:8px;white-space:nowrap}
+  .val{color:var(--text);font-weight:500}
+  .tag{display:inline-block;background:var(--blue-lt);border:1px solid var(--border);border-radius:14px;padding:2px 9px;font-size:12px;color:#1e3a5f;margin:2px 2px 2px 0;font-weight:500}
+  .notes{padding:10px 18px;font-size:13px;color:var(--text);background:#fffdf0;border-top:1px solid #f0e8c0;line-height:1.6;white-space:pre-wrap;font-style:italic}
+  .error{max-width:500px;margin:80px auto;text-align:center;padding:40px;background:#fff;border-radius:12px;box-shadow:0 2px 16px rgba(0,0,0,.08)}
+  .error h2{color:var(--red);margin-bottom:12px}
+  .error p{color:var(--muted);line-height:1.6}
+  .print-bar{background:#fff;border-top:2px solid var(--border);position:fixed;bottom:0;left:0;right:0;padding:10px 24px;display:flex;justify-content:space-between;align-items:center;z-index:100;box-shadow:0 -2px 10px rgba(0,0,0,.07)}
+  .btn{border:none;padding:9px 20px;border-radius:7px;font-size:13px;font-weight:700;cursor:pointer;transition:all .15s}
+  .btn-print{background:var(--blue);color:#fff}
+  .btn-print:hover{background:#2d5a8a}
+  .btn-copy{background:transparent;border:1.5px solid var(--border);color:var(--muted)}
+  .btn-copy:hover{border-color:var(--blue);color:var(--blue)}
+  .btn-back{background:transparent;border:1.5px solid var(--border);color:var(--muted)}
+  .btn-back:hover{border-color:var(--green);color:var(--green)}
+  .timestamp{font-size:11.5px;color:var(--muted)}
+  @media print{
+    .print-bar{display:none}
+    body{background:#fff}
+    .section{box-shadow:none;border:1px solid var(--border)}
+  }
+</style>
+</head>
+<body>
+
+<div id="app"><div class="error"><h2>Loading receipt…</h2><p>If this message persists, the link may be invalid.</p></div></div>
+
+<div class="print-bar" id="printBar" style="display:none">
+  <button class="btn btn-back" onclick="history.back()">← Back to Form</button>
+  <span class="timestamp" id="receiptTimestamp"></span>
+  <div style="display:flex;gap:8px">
+    <button class="btn btn-copy" id="copyBtn" onclick="copyLink()">🔗 Copy Link</button>
+    <button class="btn btn-print" onclick="window.print()">🖨️ Print / Save PDF</button>
+  </div>
+</div>
+
+<script>
+// ─── DECODE DATA FROM URL HASH ─────────────────────────────────────────
+function loadData() {
+  const hash = window.location.hash.slice(1);
+  if (!hash) return null;
+  try {
+    return JSON.parse(decodeURIComponent(escape(atob(hash))));
+  } catch(e) {
+    return null;
+  }
+}
+
+// ─── RENDER HELPERS ────────────────────────────────────────────────────
+function row(label, val) {
+  if (!val || (Array.isArray(val) && !val.length)) return '';
+  const isEmpty = v => !v || (Array.isArray(v) && v.length === 0) || v === '' || (Array.isArray(v) && v.every(x => !x));
+  if (isEmpty(val)) return '';
+  const v = Array.isArray(val)
+    ? val.filter(Boolean).map(x => `<span class="tag">${x}</span>`).join(' ')
+    : `<span class="val">${val}</span>`;
+  return `<tr><td class="lbl">${label}</td><td>${v}</td></tr>`;
+}
+
+function badge(text, cls) {
+  return text ? `<span class="badge ${cls||''}">${text}</span>` : '';
+}
+
+// ─── RENDER RECEIPT ────────────────────────────────────────────────────
+function render(d) {
+  document.title = `CRS — ${d.patient || 'Case'} · Seaport Smiles`;
+
+  const hasElastics = d.auxiliaries === 'Yes' ||
+    (d.elasticsWorn && d.elasticsWorn !== 'No/Probably Not' && d.elasticsWorn !== '');
+
+  const noFlags = !d.redFlags || d.redFlags.filter(f => f && f !== 'None').length === 0;
+
+  // Badge bar
+  const badges = [
+    d.complexity ? badge(d.complexity) : '',
+    d.type       ? badge(d.type, 'green') : '',
+    d.apptType   ? badge(d.apptType) : '',
+    noFlags
+      ? badge('✓ No red flags', 'green')
+      : (d.redFlags||[]).filter(f=>f&&f!=='None').map(f => badge('⚠ ' + f, 'red')).join('')
+  ].join('');
+
+  // Elastic section
+  const elasticHTML = hasElastics ? `
+    <div class="section">
+      <div class="sec-title">🦷 Elastic Protocol</div>
+      <table>
+        ${row('Elastics Worn?', d.elasticsWorn)}
+        ${(d.btnsUpperB&&d.btnsUpperB.length)||(d.btnsUpperL&&d.btnsUpperL.length) ? row('Buttons Upper', [...(d.btnsUpperB||[]).map(x=>'Buccal: '+x),...(d.btnsUpperL||[]).map(x=>'Lingual: '+x)]) : ''}
+        ${(d.btnsLowerB&&d.btnsLowerB.length)||(d.btnsLowerL&&d.btnsLowerL.length) ? row('Buttons Lower', [...(d.btnsLowerB||[]).map(x=>'Buccal: '+x),...(d.btnsLowerL||[]).map(x=>'Lingual: '+x)]) : ''}
+        ${row('Type & Strength', d.elasticStrength)}
+        ${row('Elastic Schedule', d.elasticSched)}
+        ${row('Special?', d.special)}
+      </table>
+    </div>` : '';
+
+  const neSection = (d.neTeeth && d.neTeeth.length) ? `
+    <div class="section">
+      <div class="sec-title">👑 Non-Enamel Surfaces — use MONOBOND</div>
+      <table>${row('Teeth', d.neTeeth)}</table>
+    </div>` : '';
+
+  document.getElementById('app').innerHTML = `
+    <div class="header">
+      <div class="header-left">
+        <div class="sub">Seaport Smiles · Case Review Sheet</div>
+        <h1>${d.patient || '—'}</h1>
+      </div>
+      <div class="header-right">
+        <div><strong>${d.meta ? d.meta.date : ''}</strong></div>
+        <div>${d.meta ? d.meta.time : ''}</div>
+        <div style="margin-top:4px;opacity:.7">drella@seaportsmiles.com</div>
+      </div>
+    </div>
+
+    <div class="badge-bar">${badges}</div>
+
+    <div class="container">
+      <div class="section">
+        <div class="sec-title">📋 Case Overview</div>
+        <table>
+          ${row('Complexity', d.complexity)}
+          ${row('Type', d.type)}
+          ${row('Appointment Type', d.apptType)}
+          ${row('Scan Interval', d.scanInterval)}
+          ${row('Visit Schedule', d.visitSchedule)}
+          ${row('Passive / OC', d.passiveOC)}
+        </table>
+        ${d.keyNotes ? `<div class="notes">${d.keyNotes}</div>` : ''}
+      </div>
+
+      <div class="section">
+        <div class="sec-title">🔴 Red Flags</div>
+        <table>${row('Flags', (d.redFlags&&d.redFlags.length) ? d.redFlags : ['None'])}</table>
+      </div>
+
+      <div class="section">
+        <div class="sec-title">✂️ IPR Plan</div>
+        <table>
+          ${row('IPR Plan', d.iprPlan)}
+          ${row('Purpose', d.iprPurpose)}
+        </table>
+      </div>
+
+      <div class="section">
+        <div class="sec-title">📡 iTero Scan</div>
+        <table>
+          ${row('Next Scan For', d.nextScan)}
+          ${row('Stage', d.scanStage)}
+          ${row('InvEval Stage', d.invEvalStage)}
+        </table>
+      </div>
+
+      ${neSection}
+
+      <div class="section">
+        <div class="sec-title">🔧 Appliances &amp; Auxiliaries</div>
+        <table>
+          ${row('Appliances', d.appliances)}
+          ${row('Auxiliaries?', d.auxiliaries)}
+          ${row('Misc Concerns', d.miscConcerns)}
+          ${row('Modifications', d.mods)}
+        </table>
+      </div>
+
+      <div class="section">
+        <div class="sec-title">📄 Supplementary</div>
+        <table>
+          ${row('Propel', d.propel)}
+          ${row('Consents', d.consents)}
+          ${row('Extractions', d.extractions)}
+        </table>
+      </div>
+
+      ${elasticHTML}
+    </div>`;
+
+  // Show print bar
+  const bar = document.getElementById('printBar');
+  bar.style.display = 'flex';
+  if (d.meta) {
+    document.getElementById('receiptTimestamp').textContent =
+      `CRS submitted ${d.meta.date} at ${d.meta.time}`;
+  }
+}
+
+// ─── COPY LINK ─────────────────────────────────────────────────────────
+function copyLink() {
+  const url = window.location.href;
+  navigator.clipboard.writeText(url).then(() => {
+    const btn = document.getElementById('copyBtn');
+    btn.textContent = '✓ Copied!';
+    setTimeout(() => btn.textContent = '🔗 Copy Link', 2500);
+  }).catch(() => {
+    // Fallback for environments where clipboard API is restricted
+    const ta = document.createElement('textarea');
+    ta.value = url;
+    ta.style.position = 'fixed';
+    ta.style.opacity = '0';
+    document.body.appendChild(ta);
+    ta.focus();
+    ta.select();
+    document.execCommand('copy');
+    document.body.removeChild(ta);
+    const btn = document.getElementById('copyBtn');
+    btn.textContent = '✓ Copied!';
+    setTimeout(() => btn.textContent = '🔗 Copy Link', 2500);
+  });
+}
+
+// ─── INIT ───────────────────────────────────────────────────────────────
+const data = loadData();
+if (data) {
+  render(data);
+} else {
+  document.getElementById('app').innerHTML = `
+    <div class="error">
+      <h2>❌ Receipt not found</h2>
+      <p>This link doesn't contain valid case data. Try re-submitting the CRS form to get a fresh receipt link.</p>
+    </div>`;
+}
+</script>
+</body>
+</html>
