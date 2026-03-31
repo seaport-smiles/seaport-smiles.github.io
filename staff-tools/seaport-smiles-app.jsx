@@ -1,0 +1,596 @@
+import { useState } from "react";
+
+const FRONT_DESK = {
+  opening: {
+    label: "Opening", icon: "☀️", time: "Start of Day", color: "#E8A838",
+    sections: [
+      { title: "Start of Day Duties", items: [
+        "Open Wave Ortho; log in and clock in once ready to work and personal items are put away.",
+        "Scan email inbox and prioritize: prospective qualified leads (new patients) first, then existing patient requests.",
+      ]},
+      { title: "New Patient / NPE Priority", items: [
+        "NPE consult confirmations: convert Wave Lead to Patient (if not already), add NPE appointment in Wave, add patient to OrthoFi, send OrthoFi email, note to set up IDS profile before end of morning, and create task for TC: NPE scheduled (FYI).",
+        "NPE consult inquiries (in-office or virtual) via website or email: add lead to Wave, contact to schedule via call/text/email, leave voicemail and text if no answer, and create follow-up task tagged: needs apt.",
+        "Listen to voicemails (first pass) for NPE messages only; call back to schedule and create lead in Wave.",
+      ]},
+      { title: "Existing Patient Requests", items: [
+        "Existing patient reschedule requests: send holding reply confirming receipt and that rescheduling will occur before EOD, place appointment in Holding, and if less than 48 business hours remind patient of NS/LMC fee.",
+        "Keep all messages marked unread until resolved and no further action is required.",
+      ]},
+      { title: "Wave / OrthoFi Systems", items: [
+        "Open OrthoFi and confirm all next-day consults and appointments match between Wave and OrthoFi.",
+        "Check Wave text messages and reply to all; delete threads that are fully resolved.",
+        "Check Wave tasks and complete all possible; communicate any past-due tasks to Dr. Osborn before lunch.",
+        "Check OrthoFi for completed new patient forms, including insurance.",
+      ]},
+      { title: "Referrals and Documentation", items: [
+        "Read communications from referring dentists or providers.",
+        "Upload referral text to Wave note; if lengthy, summarize into a 3-5 line Wave note using ChatGPT.",
+      ]},
+    ],
+  },
+  throughout: {
+    label: "Throughout Day", icon: "🔄", time: "Ongoing", color: "#3A8C8C",
+    sections: [
+      { title: "Patient Flow and Schedule Management", items: [
+        "Monitor arriving patients; call immediately if a patient has not checked in at their appointment start time.",
+        "Patients 10+ minutes late must be rescheduled; check appointment history for prior no-shows, apply last-minute cancellation/no-show fee unless first occurrence, and charge in OrthoFi before rescheduling.",
+        "Mark completed appointments as Attended in Wave.",
+        "If a patient checks in but steps away (e.g., restroom), un-check in and re-check in when ready to prevent premature clinical pull.",
+        "For ISB / braces bondings, un-check in patient and re-check in only after Office Policy Form is completed.",
+        "Monitor Holding in Wave and actively schedule appointments.",
+        "Fill open schedule slots with case deliveries (ISB / IDBS / IDBL) and appointments from Holding.",
+        "Review open consults and upcoming availability; discuss during huddle and execute plan to fill gaps.",
+        "Check next week's appointments and send reminder texts for any unconfirmed visits in Wave.",
+      ]},
+      { title: "Leads and New Patient Exams (NPEs)", items: [
+        "Monitor Leads Launcher in Wave; remove duplicates and attempt to schedule all leads including inactive/unqualified.",
+        "Schedule NPEs.",
+        "Track and obtain all pre-NPE requirements including x-rays, dental clearance forms, and NPE intake forms.",
+        "Update IDS profile when dental clearance is received; mark Clearance Rec'd, upload to Wave, and note completed dental clearance rec'd. Clearance must include dentist name, license number, and confirmation of restorative and periodontal status.",
+      ]},
+      { title: "OrthoFi and Financial Tasks", items: [
+        "Process insurance EOB emails by logging in, downloading EOBs, and uploading to OrthoFi -- Insurance tab -- Remittance list.",
+        "Review OrthoFi reports for delinquent accounts and failed payments.",
+        "Contact patients to obtain updated payment information (ACH preferred).",
+        "Contact patients with failed VRS payments to obtain updated payment information.",
+        "Create task for DA when new VRS subscription quotes are accepted (per patient).",
+        "Check OrthoFi Dashboard -- Messages; respond as needed and contact OrthoFi support for resolution before escalating to doctor.",
+      ]},
+      { title: "Retainers and Shipping", items: [
+        "Print shipping labels for outgoing retainers, create Wave appointment RetDel Ship or IDShip, and add tracking information using Wave note template.",
+      ]},
+      { title: "Email, Phone and Communications", items: [
+        "Check and respond to OrthoFi messages daily.",
+        "For uncertain emails, consult Dr. Osborn, TC, or DA as appropriate.",
+        "Block or unsubscribe from marketing emails.",
+        "Delete addressed voicemails from GoTo to maintain capacity (99 max).",
+      ]},
+      { title: "Mail, Documents and Accounting", items: [
+        "Open physical mail daily; scan patient-related letters to Wave and give to doctor (write scanned).",
+        "Scan insurance correspondence to Wave and OrthoFi then shred.",
+        "Give doctor relevant correspondence and periodicals; discard junk mail.",
+        "Scan invoices via Adobe Scan and email to QuickBooks (expenses).",
+        "Forward receipts to QuickBooks expenses, mark as read, and archive.",
+      ]},
+      { title: "Office Upkeep", items: [
+        "Clean and stock water station with cups and paper towels; order tea on Amazon as needed.",
+      ]},
+    ],
+  },
+  closing: {
+    label: "Closing", icon: "🌙", time: "End of Day", color: "#5B4FC4",
+    sections: [
+      { title: "Closing Day Duties", items: [
+        "Print copies of the next day's schedule with all alerts for all team members.",
+        "Review next day's schedule against the Office Policy tracker and note which patients need to sign policies.",
+        "Print all required Office Policy forms for next day's ISBs and bondings (braces).",
+        "Inform team during huddle of next day's patients who need to sign documents.",
+        "Restock cups and tea at the water station.",
+      ]},
+      { title: "End-of-Day Communication", items: [
+        "All emails must be addressed before end of day; reply definitively if possible, or send a holding reply and create a follow-up task.",
+        "Clear inbox: forward relevant NPE emails to TC (letsgo@seaportsmiles.com) and create a task.",
+      ]},
+      { title: "Documentation and Systems", items: [
+        "Confirm all clinic notes for the day are completed.",
+        "Confirm all documents for the day are scanned and uploaded, then shred originals.",
+        "Update Welcome Blackboard with exams, starts, and debonds.",
+        "Update NPE exam tracker with new, rescheduled, and cancelled exams.",
+        "Provide TC with all NPE intake forms for the following clinic day.",
+        "Confirm all VRS subscriptions have a task created for DA (Nicole Nguyen).",
+        "File all insurance claims for ISBs and bondings completed that day.",
+      ]},
+    ],
+  },
+};
+
+const CLINIC = {
+  morning: {
+    label: "Morning Setup", icon: "🌤", time: "Before First Patient", color: "#2E7D9F",
+    sections: [
+      { title: "Before Morning Huddle", items: [
+        "Arrive on time, greet teammates, and start the day cheerfully with a positive mindset.",
+        "Power up the clinic: turn on all lights, air, water, and vacuum switches. Check that the X-ray and X-ray computer are on; if not, power up and log into Wave Ortho.",
+        "Log into all computers and open Wave Ortho, Invisalign, and Virtual Care.",
+        "Check Virtual Care for new messages or submissions. Create a Wave Task for any patient needing doctor review or scheduling follow-up.",
+        "Pull all morning cases (Invisalign and retainers) and verify all appliances, lab work, and Viveras are in the office.",
+        "Make sure new starts have their patient kits (bubble pouch, Getting Started handout, scan box/scope).",
+        "Alert Head Assistant + front desk immediately if anything is missing.",
+        "Prepare operatories: wipe chairs, side carts, and counters. Check barriers and replace as needed. Confirm sinks, floors, and countertops are clean before seating the first patient.",
+        "Turn on autoclave, check distilled water level, and start a cycle if needed.",
+        "Put away sterilized instruments and restock trays, drawers, and supply areas.",
+        "Check that all clinic carts, drawers, and supply drawers are fully stocked and that cart water bottles/reservoirs are filled.",
+        "Refill paper towels in clinic and sterilization.",
+        "White Glove your area -- reference the Clinic White Glove Checklist.",
+        "Check brushing station -- clean sink and counter, restock toothpaste, toothbrushes, cups, and paper towels.",
+        "Verify all morning trays (full bonds, debonds, etc.) are prepped; set up any that were not completed the night before.",
+        "Confirm folders and forms (instructions, referral forms, etc.) are fully stocked.",
+        "Remove retractors from cold sterilization, rinse, dry, bag, and restock in labeled drawer.",
+      ]},
+    ],
+  },
+  midday: {
+    label: "Midday", icon: "☀️", time: "Prior to Afternoon Patients", color: "#B8781A",
+    sections: [
+      { title: "Midday Tasks", items: [
+        "Check Virtual Care messages again for patient submissions, questions, or alerts.",
+        "Flag any requiring review or photos for doctor follow-up.",
+        "Set up trays for after-lunch appointments (include name, wires, progress pan date, elastics, photos, etc.).",
+        "White Glove your area again and check brushing station.",
+        "Check autoclave water level before starting the next cycle.",
+        "Continue instrument sterilization -- rinse/brush and bag.",
+        "Disinfect treatment areas between every patient (chair, counter, handles).",
+        "Assist doctor as needed.",
+        "Complete treatment notes prior to seating next patient whenever possible.",
+        "Assistants may not use rotary or curing instruments without direct supervision of the orthodontist.",
+        "Create next procedure in Wave Ortho before walking the patient to reception for scheduling.",
+        "If Invisalign boxes arrive, unpack and log Received in Office in Wave, store trays in the designated cabinet, and notify the front desk if a patient needs to be scheduled.",
+        "Report any supply shortages, equipment issues, or team concerns to the Head Assistant immediately.",
+      ]},
+    ],
+  },
+  closing: {
+    label: "Closing", icon: "🌇", time: "End of Day", color: "#5B4FC4",
+    sections: [
+      { title: "Clinic Cleanup and Sterilization", items: [
+        "Sterilize instruments -- rinse/brush and bag.",
+        "Disinfect all non-sterilizable clinic supplies and instruments.",
+        "Run final autoclave cycles and confirm indicator strips passed.",
+        "Disinfect all chairs, counters, handles, and sterilization area surfaces.",
+        "Restock drawers, clinic carts, sterilization areas, and paper towels.",
+        "Check that cart water bottles/reservoirs are filled for the next day.",
+        "White Glove your area and brushing station (final clean).",
+        "Run water through suction.",
+        "Clean vacuum filter (once a week).",
+      ]},
+      { title: "Digital Wrap-Up and Records", items: [
+        "Perform a final Virtual Care message check for any new patient submissions or unread messages.",
+        "Document and flag any requiring doctor review before leaving (Wave task).",
+        "Confirm all progress and final photos have been uploaded to patient records.",
+        "Ensure all retainer orders have been placed through IDS and Lab Cases created in Wave with due dates.",
+        "Verify all VRS subscription orders have been completed and Lab Cases created in Wave with due dates.",
+        "Confirm all refinement Rx's have been submitted and Lab Cases created in Wave with due dates.",
+        "Check and complete all assigned Wave Tasks before leaving.",
+      ]},
+      { title: "Next-Day Preparation", items: [
+        "Set up trays for next morning's appointments (include name, wires, progress pan date, elastics, etc.).",
+        "Pre-fill template trays for next day's Invisalign deliveries.",
+        "Verify all appliances, Invisalign trays, and lab work for tomorrow are in the office.",
+        "If anything is missing, alert Head Assistant and TC/front desk immediately.",
+      ]},
+      { title: "Power Down and Equipment Shutdown", items: [
+        "Power down X-ray, computers, and lights (leave only designated systems running).",
+        "Turn off compressors, air, water, and vacuum.",
+        "Charge camera batteries.",
+        "Fill Roborock vacuum with water and cleaning solution; empty the tank, then start it before leaving.",
+      ]},
+      { title: "Final Walk-Through", items: [
+        "Do a complete visual sweep of the clinic for cleanliness, organization, and safety.",
+        "Confirm all doors, cabinets, and drawers are closed, and work areas are clear.",
+      ]},
+    ],
+  },
+  whiteglove: {
+    label: "White Glove", icon: "🧤", time: "Reference Checklist", color: "#2A7A4B",
+    sections: [
+      { title: "Clinic White Glove Checklist", items: [
+        "Desks and countertops clean, clear, and organized.",
+        "Computer backs, keyboards, and monitors dust-free.",
+        "Floors clean -- no wires, o-ties, brackets, or buttons (including around chair bases and stools).",
+        "Bases of dental chairs and stools wiped clean.",
+        "All nooks and crannies of chairs disinfected.",
+        "Chair light and pole clean; ducts free of debris; reflective surface spotless.",
+        "Garbages emptied and liners replaced.",
+        "Cabinet fronts and handles wiped down.",
+        "Inside of cabinets and drawers organized and clean.",
+        "Items organized and put away -- nothing left out.",
+        "Patient hand mirror spotless.",
+        "Brushing station mirror, countertops, and cabinet fronts clean.",
+        "Scanner screen and base clean.",
+      ]},
+    ],
+  },
+};
+
+const TC = {
+  opening: {
+    label: "Opening", icon: "☀️", time: "Start of Day", color: "#C2610F",
+    sections: [
+      { title: "Before Morning Huddle", items: [
+        "Turn on all lights, X-ray, TC computer, TV, iTero, iPad check-in, neon lights, and fireplace.",
+        "Log into Wave, OrthoFi, and Gmail.",
+        "White Glove TC Room.",
+        "Have Follow Up tab open in OrthoFi.",
+      ]},
+      { title: "Pre-Huddle Prep", items: [
+        "Check letsgo@seaportsmiles.com and hello@seaportsmiles.com for any NPE requests that came in overnight -- add to leads tracker and delegate to SC.",
+        "Verify Pre-Exam Checklist is fully completed by Scheduling Coordinator prior to huddle.",
+        "Review NP Consult Sheets for all new patients; ensure complete.",
+        "Check OrthoFi for missing paperwork and insurance.",
+        "Discuss any special notes, missing info, or concerns with Dr. Osborn and team before huddle.",
+        "Coordinate with Front Desk for any missing OrthoFi info so they can obtain it upon check-in.",
+      ]},
+      { title: "Throughout Morning", items: [
+        "Check Wave tasks for scheduled follow-ups; complete pending follow-ups and treatment card entries. Document follow-up contacts/calls/emails in OrthoFi.",
+        "Complete all TC Welcome (pre-consult) calls for the next 48 hours using the sheet.",
+        "Check OrthoFi to ensure all next day consults have completed paperwork and insurance.",
+        "Discuss missing OrthoFi info with FD/SC before the patient arrives.",
+        "Email dental clearance forms to any patients with dentists on file who we have communicated with (requested x-rays). Goal is to receive clearance form in advance of the NPE.",
+        "Contact patients who need appointments from the Start at Home list in OrthoFi.",
+        "Print this checklist and add patient name.",
+      ]},
+      { title: "Morning Follow-Up Count", followUpCount: true, items: [
+        "Pending follow-ups completed this morning -- record count below.",
+      ]},
+    ],
+  },
+  afternoon: {
+    label: "Afternoon", icon: "🌤", time: "Midday Reset", color: "#2E7D9F",
+    sections: [
+      { title: "Afternoon Setup", items: [
+        "Room white gloved prior to afternoon patients -- reference TC White Glove Checklist.",
+      ]},
+      { title: "Afternoon Follow-Up Count", followUpCount: true, items: [
+        "Pending follow-ups completed this afternoon -- record count below.",
+      ]},
+    ],
+  },
+  closing: {
+    label: "Closing", icon: "🌙", time: "End of Day", color: "#5B4FC4",
+    sections: [
+      { title: "Treatment Card and Consult Wrap-Up", items: [
+        "Complete all treatment card entries and additional requirements for each consult seen today.",
+        "Wave Treatment Card completed, including ETT and treatment plan.",
+        "Note section completed -- note if multiple treatment plans were presented.",
+        "Status and Tracking changed: Exam completed, contract completed.",
+        "Update patient start record date on OrthoFi.",
+        "DDS letter sent.",
+        "Check Start at Home list on OrthoFi dashboard.",
+        "Check all Invisalign Lab Cases have been added to Wave.",
+      ]},
+      { title: "Room and Admin", items: [
+        "Room white gloved prior to leaving for the day.",
+        "Complete TC Daily Summary Report -- update goals flyer in break room.",
+        "Complete Huddle Prep for next day -- review patients for the day with Dr./team and discuss any concerns.",
+        "Make sure all TC photos taken that day have been uploaded to Wave.",
+        "Complete all patient referrals for DDS/specialist.",
+      ]},
+      { title: "Shutdown", items: [
+        "Shut down computers (update if prompted).",
+        "Turn off iTero machine.",
+        "Turn off X-ray machines if clinic is finished.",
+      ]},
+    ],
+  },
+  whiteglove: {
+    label: "White Glove", icon: "🧤", time: "Reference Checklist", color: "#2A7A4B",
+    sections: [
+      { title: "TC White Glove Checklist", items: [
+        "Desk and countertops clean and organized.",
+        "Areas under desk clean.",
+        "Floors clean.",
+        "Chairs clean and chair legs do not wobble.",
+        "All surfaces are dust-free.",
+        "Display areas, cups, and flyers are organized and dust-free.",
+        "Sit in patient areas to visualize what the patient will see while waiting -- ensure everything is spotless.",
+        "Walk through the path patients will take and verify cleanliness throughout.",
+        "Shelves, cabinets, computers, front desk, and clinic are dust-free and spot-free.",
+      ]},
+    ],
+  },
+};
+
+const ROLES = {
+  frontdesk: { label: "Front Desk", sub: "Scheduling & Patient Flow", icon: "🗂️", color: "#E8A838", grad: "linear-gradient(135deg, #0F2035 0%, #1B3A5C 100%)", data: FRONT_DESK },
+  clinic:    { label: "Clinical Assistant", sub: "Daily Clinic Operations", icon: "🦷", color: "#2E7D9F", grad: "linear-gradient(135deg, #0B1E30 0%, #1B3A5C 100%)", data: CLINIC },
+  tc:        { label: "Treatment Coordinator", sub: "TC Workflow", icon: "📋", color: "#C2610F", grad: "linear-gradient(135deg, #1A0A00 0%, #3D1A00 100%)", data: TC },
+};
+
+function buildState(data) {
+  const s = {};
+  for (const [k, list] of Object.entries(data)) {
+    s[k] = {};
+    list.sections.forEach((sec, si) => sec.items.forEach((_, ii) => { s[k][si + "-" + ii] = false; }));
+  }
+  return s;
+}
+function countItems(data, key) { return data[key].sections.reduce((a, s) => a + s.items.length, 0); }
+function countChecked(checks, key) { return Object.values(checks[key] || {}).filter(Boolean).length; }
+
+function Checklist({ roleKey, onBack }) {
+  const role = ROLES[roleKey];
+  const data = role.data;
+  const tabs = Object.keys(data);
+  const [active, setActive] = useState(tabs[0]);
+  const [checks, setChecks] = useState(() => buildState(data));
+  const [done, setDone] = useState({});
+  const [toast, setToast] = useState(null);
+  const [fuCounts, setFuCounts] = useState({});
+  const [exp, setExp] = useState(() => { const e = {}; tabs.forEach(k => { e[k] = data[k].sections.map(() => true); }); return e; });
+
+  const list = data[active];
+  const total = countItems(data, active);
+  const checked = countChecked(checks, active);
+  const pct = total ? Math.round((checked / total) * 100) : 0;
+  const allDone = checked === total;
+
+  function toggle(si, ii) {
+    const k = si + "-" + ii;
+    setChecks(p => ({ ...p, [active]: { ...p[active], [k]: !p[active][k] } }));
+  }
+  function toggleSec(si) {
+    setExp(p => { const c = { ...p, [active]: [...p[active]] }; c[active][si] = !c[active][si]; return c; });
+  }
+  function markDone() {
+    const now = new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+    setDone(p => ({ ...p, [active]: now }));
+    setToast(list.icon + " " + list.label + " complete!");
+    setTimeout(() => setToast(null), 3000);
+  }
+  function reset() {
+    const fresh = buildState(data);
+    setChecks(p => ({ ...p, [active]: fresh[active] }));
+    setDone(p => { const c = { ...p }; delete c[active]; return c; });
+  }
+
+  return (
+    <div style={S.root}>
+      <style>{css}</style>
+      {toast && <div style={S.toast}>{toast} -- Photo to Slack</div>}
+      <div style={{ ...S.header, background: role.grad }}>
+        <button onClick={onBack} style={S.backBtn} className="back-btn">&#8592;</button>
+        <div style={S.brand}>
+          <div style={S.brandIcon}>{role.icon}</div>
+          <div>
+            <div style={S.brandName}>Seaport Smiles</div>
+            <div style={S.brandSub}>{role.label}</div>
+          </div>
+        </div>
+        <div style={S.dateChip}>{new Date().toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric" })}</div>
+      </div>
+
+      <div style={S.tabs}>
+        {tabs.map(key => {
+          const l = data[key];
+          const tot = countItems(data, key);
+          const chk = countChecked(checks, key);
+          const isAct = active === key;
+          const isDone = done[key];
+          return (
+            <button key={key} onClick={() => setActive(key)}
+              style={{ ...S.tab, ...(isAct ? { ...S.tabActive, borderColor: l.color, color: l.color } : {}) }}
+              className="tab-btn"
+            >
+              <span>{l.icon}</span>
+              <span style={S.tabTxt}>{l.label}</span>
+              <span style={{ ...S.badge, background: isDone ? "#22c55e" : isAct ? l.color : "#E2E8F0", color: isDone || isAct ? "#fff" : "#94A3B8" }}>
+                {isDone ? "done" : chk + "/" + tot}
+              </span>
+            </button>
+          );
+        })}
+      </div>
+
+      <div style={S.content}>
+        <div style={S.progWrap}>
+          <div style={S.progHead}>
+            <span style={{ ...S.progLabel, color: list.color }}>{list.icon} {list.label} -- {list.time}</span>
+            <span style={S.progPct}>{pct}%</span>
+          </div>
+          <div style={S.track}><div style={{ ...S.fill, width: pct + "%", background: list.color }} /></div>
+          <div style={S.progCount}>{checked} of {total} tasks complete</div>
+        </div>
+
+        {list.sections.map((sec, si) => {
+          const sChk = sec.items.filter((_, ii) => checks[active][si + "-" + ii]).length;
+          const sDone = sChk === sec.items.length;
+          const isExp = exp[active][si];
+          const fuKey = active + "-" + si;
+          return (
+            <div key={si} style={S.card}>
+              <button style={{ ...S.cardHead, borderLeftColor: list.color }} onClick={() => toggleSec(si)} className="card-btn">
+                <div style={S.cardL}>
+                  <span style={{ ...S.dot, background: sDone ? list.color : "transparent", border: "2px solid " + (sDone ? list.color : "#CBD5E1"), color: sDone ? "#fff" : "transparent" }}>{"\u2713"}</span>
+                  <span style={S.cardTitle}>{sec.title}</span>
+                </div>
+                <div style={S.cardR}>
+                  <span style={S.cardCount}>{sChk}/{sec.items.length}</span>
+                  <span style={{ ...S.chev, transform: isExp ? "rotate(180deg)" : "rotate(0deg)" }}>&#9662;</span>
+                </div>
+              </button>
+              {isExp && (
+                <div style={S.items}>
+                  {sec.items.map((item, ii) => {
+                    const chk = checks[active][si + "-" + ii];
+                    return (
+                      <button key={ii} style={{ ...S.item, ...(chk ? S.itemDone : {}) }} onClick={() => toggle(si, ii)} className="item-btn">
+                        <span style={{ ...S.box, background: chk ? list.color : "#fff", borderColor: chk ? list.color : "#CBD5E1" }}>
+                          {chk && <span style={S.tick}>{"\u2713"}</span>}
+                        </span>
+                        <span style={{ ...S.itemTxt, ...(chk ? S.itemTxtDone : {}) }}>{item}</span>
+                      </button>
+                    );
+                  })}
+                  {sec.followUpCount && (
+                    <div style={S.counter}>
+                      <span style={S.counterLbl}>Follow-ups completed:</span>
+                      <div style={S.counterRow}>
+                        <button style={{ ...S.cBtn, borderColor: list.color }} onClick={() => setFuCounts(p => ({ ...p, [fuKey]: Math.max(0, (p[fuKey] || 0) - 1) }))} className="counter-btn">-</button>
+                        <span style={{ ...S.cVal, color: list.color }}>{fuCounts[fuKey] || 0}</span>
+                        <button style={{ ...S.cBtn, borderColor: list.color }} onClick={() => setFuCounts(p => ({ ...p, [fuKey]: (p[fuKey] || 0) + 1 }))} className="counter-btn">+</button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          );
+        })}
+
+        <div style={S.footer}>
+          {done[active] ? (
+            <div style={S.doneBanner}>
+              <span>Completed at {done[active]}</span>
+              <button onClick={reset} style={S.resetBtn}>Reset</button>
+            </div>
+          ) : (
+            <button onClick={markDone} disabled={!allDone} style={{ ...S.completeBtn, background: allDone ? list.color : "#E2E8F0", color: allDone ? "#fff" : "#94A3B8", cursor: allDone ? "pointer" : "not-allowed", boxShadow: allDone ? "0 4px 20px " + list.color + "44" : "none" }}>
+              {allDone ? "Mark " + list.label + " Complete -- Photo to Slack" : checked + " of " + total + " tasks complete"}
+            </button>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function RoleSelector({ onSelect }) {
+  return (
+    <div style={R.root}>
+      <style>{css}</style>
+      <div style={R.hero}>
+        <div style={R.anchor}>⚓</div>
+        <h1 style={R.title}>Seaport Smiles</h1>
+        <p style={R.sub}>Select your role to begin today's checklist</p>
+        <div style={R.date}>{new Date().toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric", year: "numeric" })}</div>
+      </div>
+      <div style={R.cards}>
+        {Object.entries(ROLES).map(([key, role]) => (
+          <button key={key} onClick={() => onSelect(key)} style={R.card} className="role-card">
+            <div style={{ ...R.accent, background: role.color }} />
+            <div style={R.cardBody}>
+              <div style={{ ...R.cardIcon, background: role.color + "18", color: role.color }}>{role.icon}</div>
+              <div style={R.cardText}>
+                <div style={R.cardLabel}>{role.label}</div>
+                <div style={R.cardSub}>{role.sub}</div>
+              </div>
+              <span style={{ ...R.arrow, color: role.color }}>&#8594;</span>
+            </div>
+            <div style={R.pills}>
+              {Object.values(role.data).map((tab, i) => (
+                <span key={i} style={{ ...R.pill, background: role.color + "15", color: role.color }}>{tab.icon} {tab.label}</span>
+              ))}
+            </div>
+          </button>
+        ))}
+      </div>
+      <div style={R.wm}>Seaport Smiles Operations</div>
+    </div>
+  );
+}
+
+export default function App() {
+  const [role, setRole] = useState(null);
+  if (role) return <Checklist roleKey={role} onBack={() => setRole(null)} />;
+  return <RoleSelector onSelect={setRole} />;
+}
+
+const R = {
+  root: { fontFamily: "'DM Sans', sans-serif", background: "#F0F4F8", minHeight: "100vh", maxWidth: 520, margin: "0 auto", paddingBottom: 40 },
+  hero: { background: "linear-gradient(160deg, #0B1E30 0%, #1B3A5C 60%, #0B2A3D 100%)", padding: "52px 24px 44px", textAlign: "center" },
+  anchor: { fontSize: 42, marginBottom: 14, display: "block" },
+  title: { color: "#fff", fontSize: 30, fontWeight: 900, letterSpacing: "-0.8px", margin: "0 0 8px" },
+  sub: { color: "rgba(255,255,255,0.5)", fontSize: 14, margin: "0 0 18px" },
+  date: { display: "inline-block", background: "rgba(255,255,255,0.08)", color: "rgba(255,255,255,0.6)", fontSize: 12, fontWeight: 500, padding: "6px 16px", borderRadius: 20 },
+  cards: { padding: "20px 16px 0", display: "flex", flexDirection: "column", gap: 12 },
+  card: { background: "#fff", borderRadius: 16, border: "none", cursor: "pointer", textAlign: "left", overflow: "hidden", boxShadow: "0 2px 8px rgba(0,0,0,0.07)", fontFamily: "inherit", padding: 0, transition: "transform 0.15s, box-shadow 0.15s" },
+  accent: { height: 4, width: "100%" },
+  cardBody: { display: "flex", alignItems: "center", gap: 14, padding: "16px 18px 10px" },
+  cardIcon: { width: 46, height: 46, borderRadius: 12, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 22, flexShrink: 0 },
+  cardText: { flex: 1 },
+  cardLabel: { fontSize: 16, fontWeight: 800, color: "#1E293B", letterSpacing: "-0.3px" },
+  cardSub: { fontSize: 12, color: "#94A3B8", fontWeight: 500, marginTop: 2 },
+  arrow: { fontSize: 20, fontWeight: 700, flexShrink: 0 },
+  pills: { display: "flex", flexWrap: "wrap", gap: 6, padding: "0 18px 14px" },
+  pill: { fontSize: 11, fontWeight: 600, padding: "3px 10px", borderRadius: 20 },
+  wm: { textAlign: "center", color: "#CBD5E1", fontSize: 11, fontWeight: 500, letterSpacing: "0.5px", textTransform: "uppercase", marginTop: 32 },
+};
+
+const S = {
+  root: { fontFamily: "'DM Sans', sans-serif", background: "#F0F4F8", minHeight: "100vh", maxWidth: 720, margin: "0 auto", paddingBottom: 40 },
+  toast: { position: "fixed", top: 16, left: "50%", transform: "translateX(-50%)", background: "#1E293B", color: "#fff", padding: "12px 24px", borderRadius: 40, fontSize: 14, fontWeight: 600, zIndex: 9999, boxShadow: "0 4px 20px rgba(0,0,0,0.2)", animation: "fadeIn 0.3s ease", whiteSpace: "nowrap" },
+  header: { padding: "16px 20px", display: "flex", alignItems: "center", gap: 12 },
+  backBtn: { background: "rgba(255,255,255,0.1)", border: "none", color: "#fff", width: 34, height: 34, borderRadius: 10, fontSize: 18, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, fontFamily: "inherit", transition: "background 0.15s" },
+  brand: { display: "flex", alignItems: "center", gap: 10, flex: 1 },
+  brandIcon: { fontSize: 16, background: "rgba(255,255,255,0.1)", width: 36, height: 36, borderRadius: 9, display: "flex", alignItems: "center", justifyContent: "center" },
+  brandName: { color: "#fff", fontWeight: 700, fontSize: 15, letterSpacing: "-0.3px" },
+  brandSub: { color: "rgba(255,255,255,0.5)", fontSize: 10, fontWeight: 400, letterSpacing: "0.5px", textTransform: "uppercase" },
+  dateChip: { background: "rgba(255,255,255,0.08)", color: "rgba(255,255,255,0.7)", fontSize: 11, padding: "4px 10px", borderRadius: 20, fontWeight: 500, whiteSpace: "nowrap" },
+  tabs: { display: "flex", background: "#fff", borderBottom: "1px solid #E2E8F0", padding: "0 8px", gap: 2, overflowX: "auto" },
+  tab: { display: "flex", alignItems: "center", gap: 5, padding: "12px 12px", background: "none", border: "none", borderBottom: "3px solid transparent", cursor: "pointer", color: "#64748B", fontSize: 11, fontWeight: 500, whiteSpace: "nowrap", transition: "all 0.2s", fontFamily: "inherit" },
+  tabActive: { borderBottomStyle: "solid", borderBottomWidth: 3, fontWeight: 700 },
+  tabTxt: {},
+  badge: { fontSize: 10, fontWeight: 700, padding: "2px 6px", borderRadius: 20, transition: "all 0.3s" },
+  content: { padding: "14px 14px 0" },
+  progWrap: { background: "#fff", borderRadius: 14, padding: "14px 18px", marginBottom: 12, boxShadow: "0 1px 4px rgba(0,0,0,0.06)" },
+  progHead: { display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 },
+  progLabel: { fontWeight: 700, fontSize: 13 },
+  progPct: { fontSize: 20, fontWeight: 800, color: "#0F2035", letterSpacing: "-0.5px" },
+  track: { height: 5, background: "#F1F5F9", borderRadius: 10, overflow: "hidden" },
+  fill: { height: "100%", borderRadius: 10, transition: "width 0.4s ease" },
+  progCount: { fontSize: 12, color: "#94A3B8", marginTop: 5, fontWeight: 500 },
+  card: { background: "#fff", borderRadius: 14, marginBottom: 10, overflow: "hidden", boxShadow: "0 1px 4px rgba(0,0,0,0.06)" },
+  cardHead: { width: "100%", display: "flex", alignItems: "center", justifyContent: "space-between", padding: "12px 15px", background: "none", border: "none", borderLeft: "4px solid", cursor: "pointer", textAlign: "left", fontFamily: "inherit" },
+  cardL: { display: "flex", alignItems: "center", gap: 10 },
+  dot: { width: 20, height: 20, borderRadius: 6, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, fontWeight: 700, flexShrink: 0, transition: "all 0.2s" },
+  cardTitle: { fontSize: 13, fontWeight: 700, color: "#1E293B" },
+  cardR: { display: "flex", alignItems: "center", gap: 8 },
+  cardCount: { fontSize: 12, fontWeight: 600, color: "#94A3B8" },
+  chev: { fontSize: 15, color: "#94A3B8", display: "inline-block", transition: "transform 0.2s" },
+  items: { borderTop: "1px solid #F1F5F9", padding: "6px 12px 10px", display: "flex", flexDirection: "column", gap: 2 },
+  item: { display: "flex", alignItems: "flex-start", gap: 10, padding: "8px 10px", background: "none", border: "none", borderRadius: 8, cursor: "pointer", textAlign: "left", width: "100%", transition: "background 0.15s", fontFamily: "inherit" },
+  itemDone: { background: "#F8FAFC" },
+  box: { width: 20, height: 20, borderRadius: 6, border: "2px solid", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, marginTop: 1, transition: "all 0.15s" },
+  tick: { fontSize: 11, color: "#fff", fontWeight: 800, lineHeight: 1 },
+  itemTxt: { fontSize: 13, color: "#374151", lineHeight: 1.5, fontWeight: 450 },
+  itemTxtDone: { opacity: 0.4, textDecoration: "line-through", textDecorationColor: "#94A3B8" },
+  counter: { display: "flex", alignItems: "center", justifyContent: "space-between", background: "#F8FAFC", border: "1px solid #E2E8F0", borderRadius: 10, padding: "10px 14px", margin: "6px 2px 2px" },
+  counterLbl: { fontSize: 13, fontWeight: 600, color: "#374151" },
+  counterRow: { display: "flex", alignItems: "center", gap: 14 },
+  cBtn: { width: 32, height: 32, borderRadius: 8, border: "1px solid", background: "#fff", fontSize: 18, fontWeight: 700, color: "#374151", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "inherit", lineHeight: 1 },
+  cVal: { fontSize: 22, fontWeight: 900, minWidth: 32, textAlign: "center", letterSpacing: "-0.5px" },
+  footer: { padding: "14px 0 8px" },
+  completeBtn: { width: "100%", padding: "15px", borderRadius: 14, border: "none", fontSize: 14, fontWeight: 700, transition: "all 0.2s", fontFamily: "inherit", letterSpacing: "-0.1px" },
+  doneBanner: { display: "flex", alignItems: "center", justifyContent: "space-between", background: "#DCFCE7", border: "1px solid #86EFAC", color: "#15803D", padding: "14px 18px", borderRadius: 14, fontSize: 14, fontWeight: 600 },
+  resetBtn: { background: "none", border: "1px solid #86EFAC", color: "#15803D", fontSize: 12, fontWeight: 600, padding: "4px 12px", borderRadius: 8, cursor: "pointer", fontFamily: "inherit" },
+};
+
+const css = `
+  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800;900&display=swap');
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #F0F4F8; }
+  .back-btn:hover { background: rgba(255,255,255,0.2) !important; }
+  .role-card:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,0.11) !important; }
+  .role-card:active { transform: translateY(0px); }
+  .tab-btn:hover { background: #F8FAFC; }
+  .card-btn:hover { background: #FAFAFA; }
+  .item-btn:hover { background: #F8FAFC !important; }
+  .counter-btn:hover { background: #F1F5F9 !important; }
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateX(-50%) translateY(-8px); }
+    to   { opacity: 1; transform: translateX(-50%) translateY(0); }
+  }
+  ::-webkit-scrollbar { width: 4px; height: 4px; }
+  ::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 4px; }
+`;
