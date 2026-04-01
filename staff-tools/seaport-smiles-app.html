@@ -409,16 +409,26 @@ function Checklist({ roleKey, onBack }) {
     setToast(list.label + " complete!");
     setTimeout(() => setToast(null), 4000);
     setTimeout(() => window.open(SLACK_URL, "_blank"), 400);
-    // Auto-post completion log to Slack
+    // Auto-post completion log to Slack via hidden form (bypasses CORS)
     const msg = JSON.stringify({
       text: `\u2705 *${name.trim()}* completed *${role.label} \u2014 ${list.label}* at ${now} on ${today}`
     });
-    fetch(SLACK_HOOK, {
-      method: "POST",
-      mode: "no-cors",
-      headers: { "Content-Type": "application/x-www-form-urlencoded" },
-      body: "payload=" + encodeURIComponent(msg)
-    });
+    const iframe = document.createElement("iframe");
+    iframe.name = "slack-post-" + Date.now();
+    iframe.style.display = "none";
+    document.body.appendChild(iframe);
+    const form = document.createElement("form");
+    form.method = "POST";
+    form.action = SLACK_HOOK;
+    form.target = iframe.name;
+    const input = document.createElement("input");
+    input.type = "hidden";
+    input.name = "payload";
+    input.value = msg;
+    form.appendChild(input);
+    document.body.appendChild(form);
+    form.submit();
+    setTimeout(() => { form.remove(); iframe.remove(); }, 5000);
   }
   function reset() {
     const fresh = buildEmptyChecks(data);
