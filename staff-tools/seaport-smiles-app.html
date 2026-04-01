@@ -410,13 +410,14 @@ function Checklist({ roleKey, onBack }) {
     setTimeout(() => setToast(null), 4000);
     setTimeout(() => window.open(SLACK_URL, "_blank"), 400);
     // Auto-post completion log to Slack
+    const msg = JSON.stringify({
+      text: `\u2705 *${name.trim()}* completed *${role.label} \u2014 ${list.label}* at ${now} on ${today}`
+    });
     fetch(SLACK_HOOK, {
       method: "POST",
       mode: "no-cors",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        text: `\u2705 *${name.trim()}* completed *${role.label} \u2014 ${list.label}* at ${now} on ${today}`
-      })
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: "payload=" + encodeURIComponent(msg)
     });
   }
   function reset() {
