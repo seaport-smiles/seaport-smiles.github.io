@@ -3,141 +3,106 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Seaport Smiles | Digital Artifacts</title>
+    <title>Seaport Smiles | Master Directory</title>
     <style>
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #f8fafc; color: #1e293b; padding: 40px; line-height: 1.6; }
-        .container { max-width: 800px; margin: 0 auto; background: white; padding: 40px; border-radius: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); }
-        h1 { color: #0f172a; margin-bottom: 8px; font-weight: 700; }
-        .subtitle { color: #64748b; margin-bottom: 32px; font-size: 18px; }
-        .section-title { font-size: 12px; text-transform: uppercase; letter-spacing: 0.1em; color: #94a3b8; margin-top: 40px; border-bottom: 1px solid #e2e8f0; padding-bottom: 8px; font-weight: 600; }
-        ul { list-style: none; padding: 0; margin-top: 16px; display: grid; gap: 16px; }
-        a { display: block; padding: 20px; border: 1px solid #e2e8f0; border-radius: 12px; text-decoration: none; color: #2563eb; transition: all 0.2s ease; height: 100%; }
-        a:hover { border-color: #2563eb; background: #f0f7ff; transform: translateY(-2px); box-shadow: 0 4px 12px rgba(37, 99, 235, 0.1); }
-        .item-header { display: flex; align-items: center; gap: 10px; margin-bottom: 4px; flex-wrap: wrap;}
-        .desc { display: block; font-size: 14px; color: #475569; line-height: 1.5; margin-top: 6px;}
-        .tag { font-size: 10px; background: #f1f5f9; padding: 3px 10px; border-radius: 999px; text-transform: uppercase; font-weight: 700; color: #64748b; }
-        .tag-patient { background: #dcfce7; color: #166534; }
-        .tag-staff { background: #fee2e2; color: #991b1b; }
-        .tag-system { background: #fef3c7; color: #92400e; }
-        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-        @media (max-width: 600px) { .grid-2 { grid-template-columns: 1fr; } }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #f0f4f8; color: #1e293b; padding: 40px 20px; line-height: 1.6; margin: 0; }
+        .container { max-width: 1000px; margin: 0 auto; }
+        .header { text-align: center; margin-bottom: 50px; }
+        h1 { color: #0f172a; margin-bottom: 8px; font-weight: 800; font-size: 32px; }
+        .subtitle { color: #64748b; font-size: 18px; margin: 0; }
+        
+        /* Layout */
+        .directory-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; }
+        @media (max-width: 768px) { .directory-grid { grid-template-columns: 1fr; } }
+        
+        /* Main Category Cards */
+        .main-category { background: white; border-radius: 16px; padding: 30px; box-shadow: 0 10px 25px rgba(0,0,0,0.04); border-top: 6px solid; }
+        .category-patients { border-top-color: #2a8c8c; }
+        .category-team { border-top-color: #1a2744; }
+        
+        .main-category h2 { margin-top: 0; font-size: 24px; border-bottom: 2px solid #f1f5f9; padding-bottom: 15px; margin-bottom: 20px; display: flex; align-items: center; gap: 10px; }
+        .category-patients h2 { color: #2a8c8c; }
+        .category-team h2 { color: #1a2744; }
+
+        /* Folders/Sub-categories */
+        .folder-group { margin-bottom: 24px; }
+        .folder-title { font-size: 12px; text-transform: uppercase; letter-spacing: 0.1em; color: #94a3b8; font-weight: 700; margin-bottom: 12px; display: flex; align-items: center; gap: 6px; }
+        .folder-title::before { content: '📁'; font-size: 14px; }
+        
+        ul { list-style: none; padding: 0; margin: 0; display: grid; gap: 10px; }
+        li { margin: 0; }
+        
+        a { display: flex; align-items: center; justify-content: space-between; padding: 14px 18px; border: 1px solid #e2e8f0; border-radius: 10px; text-decoration: none; color: #334155; transition: all 0.2s ease; background: #fafbfc; }
+        a:hover { border-color: #cbd5e1; background: #ffffff; transform: translateX(4px); box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03); }
+        .link-text { font-weight: 600; font-size: 15px; }
+        
+        /* Tags */
+        .tag { font-size: 10px; padding: 3px 10px; border-radius: 999px; text-transform: uppercase; font-weight: 700; background: #e2e8f0; color: #475569; }
+        .category-patients .tag { background: #e6f4f4; color: #2a8c8c; }
+        .category-team .tag { background: #f1f5f9; color: #1a2744; }
+        .nested-folder { margin-left: 20px; margin-top: 10px; border-left: 2px solid #e2e8f0; padding-left: 15px; }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>Seaport Smiles Artifacts</h1>
-        <p class="subtitle">Internal workflows and patient education resources.</p>
+        <div class="header">
+            <h1>Seaport Smiles Directory</h1>
+            <p class="subtitle">Select a portal below to access resources and tools.</p>
+        </div>
 
-        <div class="section-title">Patient Resources</div>
-        <ul class="grid-2">
-            <li>
-                <a href="./patient-pages/treatment-journey/">
-                    <div class="item-header">
-                        <span class="tag tag-patient">Pipeline</span>
-                        <strong>Your Treatment Journey</strong>
-                    </div>
-                    <span class="desc">Interactive visual pipeline explaining the 3-week dental clearance rule.</span>
-                </a>
-            </li>
-            <li>
-                <a href="./patient-pages/treatment-journey/jaw-surgery.html">
-                    <div class="item-header">
-                        <span class="tag tag-patient">Clinical Info</span>
-                        <strong>Jaw Surgery Overview</strong>
-                    </div>
-                    <span class="desc">Main educational page for orthognathic surgery patients.</span>
-                </a>
-            </li>
-            <li>
-                <a href="./patient-pages/treatment-journey/jaw-surgery-indications.html">
-                    <div class="item-header">
-                        <span class="tag tag-patient">Clinical Info</span>
-                        <strong>Jaw Surgery Indications</strong>
-                    </div>
-                </a>
-            </li>
-            <li>
-                <a href="./patient-pages/treatment-journey/jaw-surgery-subtypes.html">
-                    <div class="item-header">
-                        <span class="tag tag-patient">Clinical Info</span>
-                        <strong>Jaw Surgery Subtypes</strong>
-                    </div>
-                </a>
-            </li>
-            <li>
-                <a href="./patient-pages/treatment-journey/managing-class-ii-malocclusion-with-invisalign.html">
-                    <div class="item-header">
-                        <span class="tag tag-patient">Clinical Info</span>
-                        <strong>Class II Malocclusion</strong>
-                    </div>
-                </a>
-            </li>
-            <li>
-                <a href="./patient-pages/treatment-journey/orthodontics-pediatric-sleep-apnea-guide.html">
-                    <div class="item-header">
-                        <span class="tag tag-patient">Clinical Info</span>
-                        <strong>Pediatric Sleep Apnea Guide</strong>
-                    </div>
-                </a>
-            </li>
-            <li>
-                <a href="./patient-pages/treatment-journey/high-level.html">
-                    <div class="item-header">
-                        <span class="tag tag-patient">Overview</span>
-                        <strong>High Level Summary</strong>
-                    </div>
-                </a>
-            </li>
-        </ul>
+        <div class="directory-grid">
+            
+            <div class="main-category category-patients">
+                <h2>For Patients</h2>
+                
+                <div class="folder-group">
+                    <div class="folder-title">General</div>
+                    <ul>
+                        <li><a href="./for-patients/high-level.html"><span class="link-text">High Level Overview</span><span class="tag">Page</span></a></li>
+                    </ul>
+                </div>
 
-        <div class="section-title">Internal Operations & Staff Tools</div>
-        <ul class="grid-2">
-            <li>
-                <a href="./staff-tools/isb-system.html">
-                    <div class="item-header">
-                        <span class="tag tag-staff">Dashboard</span>
-                        <strong>ISB Workflow System</strong>
+                <div class="folder-group">
+                    <div class="folder-title">Treatment Journey</div>
+                    <ul>
+                        <li><a href="./for-patients/treatment-journey/"><span class="link-text">Your Treatment Journey</span><span class="tag">Pipeline</span></a></li>
+                        <li><a href="./for-patients/treatment-journey/jaw-surgery.html"><span class="link-text">Jaw Surgery Overview</span><span class="tag">Guide</span></a></li>
+                        <li><a href="./for-patients/treatment-journey/jaw-surgery-indications.html"><span class="link-text">Jaw Surgery Indications</span><span class="tag">Guide</span></a></li>
+                        <li><a href="./for-patients/treatment-journey/jaw-surgery-subtypes.html"><span class="link-text">Jaw Surgery Subtypes</span><span class="tag">Guide</span></a></li>
+                        <li><a href="./for-patients/treatment-journey/managing-class-ii-malocclusion-with-invisalign.html"><span class="link-text">Class II Malocclusion</span><span class="tag">Guide</span></a></li>
+                        <li><a href="./for-patients/treatment-journey/orthodontics-pediatric-sleep-apnea-guide.html"><span class="link-text">Pediatric Sleep Apnea</span><span class="tag">Guide</span></a></li>
+                    </ul>
+                    
+                    <div class="nested-folder">
+                        <div class="folder-title">Video Onboarding</div>
+                        <ul>
+                            <li><a href="./for-patients/treatment-journey/video-onboarding/getting-started.html"><span class="link-text">Getting Started Videos</span><span class="tag">Media</span></a></li>
+                        </ul>
                     </div>
-                    <span class="desc">Lena’s interactive reference for AutoPilot specs and the 10-day rule.</span>
-                </a>
-            </li>
-            <li>
-                <a href="./staff-tools/seaport-smiles-app.html">
-                    <div class="item-header">
-                        <span class="tag tag-staff">App</span>
-                        <strong>Seaport Smiles App</strong>
-                    </div>
-                    <span class="desc">Internal staff application interface.</span>
-                </a>
-            </li>
-            <li>
-                <a href="./CRS/CRS_Form.html">
-                    <div class="item-header">
-                        <span class="tag tag-system">Clinical</span>
-                        <strong>CRS Form</strong>
-                    </div>
-                    <span class="desc">Case Readiness Status intake form.</span>
-                </a>
-            </li>
-            <li>
-                <a href="./CRS/CRS_Receipt.html">
-                    <div class="item-header">
-                        <span class="tag tag-system">Clinical</span>
-                        <strong>CRS Receipt</strong>
-                    </div>
-                    <span class="desc">Confirmation output for CRS entries.</span>
-                </a>
-            </li>
-            <li>
-                <a href="./video-onboarding/getting-started.html">
-                    <div class="item-header">
-                        <span class="tag tag-staff">Training</span>
-                        <strong>Video Onboarding</strong>
-                    </div>
-                    <span class="desc">Getting started guides and video modules.</span>
-                </a>
-            </li>
-        </ul>
+                </div>
+            </div>
+
+            <div class="main-category category-team">
+                <h2>For Seaport Smiles Team</h2>
+                
+                <div class="folder-group">
+                    <div class="folder-title">Staff Tools</div>
+                    <ul>
+                        <li><a href="./staff-tools/isb-system.html"><span class="link-text">ISB Workflow Dashboard</span><span class="tag">System</span></a></li>
+                        <li><a href="./staff-tools/seaport-smiles-app.html"><span class="link-text">Seaport Smiles App UI</span><span class="tag">App</span></a></li>
+                    </ul>
+                </div>
+
+                <div class="folder-group">
+                    <div class="folder-title">CRS System</div>
+                    <ul>
+                        <li><a href="./staff-tools/CRS/CRS_Form.html"><span class="link-text">Case Readiness Form</span><span class="tag">Form</span></a></li>
+                        <li><a href="./staff-tools/CRS/CRS_Receipt.html"><span class="link-text">CRS Receipt Output</span><span class="tag">Output</span></a></li>
+                    </ul>
+                </div>
+            </div>
+
+        </div>
     </div>
 </body>
 </html>
