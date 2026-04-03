@@ -708,8 +708,8 @@ function RoleSelector({ onSelect, onHistory }) {
   return (
     <div style={R.root}>
       <style>{css}</style>
-      <div style={R.hero}>
-        <div style={R.anchor}>&#9875;</div>
+    <div style={R.hero}>
+        <img src="team-photo.jpg" alt="Seaport Smiles Team" style={R.teamPhoto} />
         <h1 style={R.title}>Seaport Smiles</h1>
         <p style={R.sub}>Select your role to begin today&apos;s checklist</p>
         <div style={R.date}>{todayStr()}</div>
@@ -769,7 +769,7 @@ const R = {
   root: { fontFamily:"'DM Sans',sans-serif", background:"#F0F4F8", minHeight:"100vh", maxWidth:520, margin:"0 auto", paddingBottom:40 },
   hero: { background:"linear-gradient(160deg,#0B1E30 0%,#1B3A5C 60%,#0B2A3D 100%)", padding:"52px 24px 44px", textAlign:"center" },
   anchor: { fontSize:42, marginBottom:14, display:"block" },
-  title: { color:"#fff", fontSize:30, fontWeight:900, letterSpacing:"-0.8px", margin:"0 0 8px" },
+  teamPhoto: { width: 110, height: 110, borderRadius: "50%", objectFit: "cover", marginBottom: 16, border: "3px solid rgba(255,255,255,0.15)", display: "inline-block" },  title: { color:"#fff", fontSize:30, fontWeight:900, letterSpacing:"-0.8px", margin:"0 0 8px" },
   sub: { color:"rgba(255,255,255,0.5)", fontSize:14, margin:"0 0 18px" },
   date: { display:"inline-block", background:"rgba(255,255,255,0.08)", color:"rgba(255,255,255,0.6)", fontSize:12, fontWeight:500, padding:"6px 16px", borderRadius:20 },
   cards: { padding:"20px 16px 0", display:"flex", flexDirection:"column", gap:12 },
