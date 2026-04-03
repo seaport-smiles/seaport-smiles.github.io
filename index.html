@@ -5,42 +5,156 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Seaport Smiles | Master Directory</title>
     <style>
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #f0f4f8; color: #1e293b; padding: 40px 20px; line-height: 1.6; margin: 0; }
-        .container { max-width: 1000px; margin: 0 auto; }
-        .header { text-align: center; margin-bottom: 50px; }
-        h1 { color: #0f172a; margin-bottom: 8px; font-weight: 800; font-size: 32px; }
-        .subtitle { color: #64748b; font-size: 18px; margin: 0; }
-        
-        /* Layout */
-        .directory-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; }
-        @media (max-width: 768px) { .directory-grid { grid-template-columns: 1fr; } }
-        
-        /* Main Category Cards */
-        .main-category { background: white; border-radius: 16px; padding: 30px; box-shadow: 0 10px 25px rgba(0,0,0,0.04); border-top: 6px solid; }
-        .category-patients { border-top-color: #2a8c8c; }
-        .category-team { border-top-color: #1a2744; }
-        
-        .main-category h2 { margin-top: 0; font-size: 24px; border-bottom: 2px solid #f1f5f9; padding-bottom: 15px; margin-bottom: 20px; display: flex; align-items: center; gap: 10px; }
-        .category-patients h2 { color: #2a8c8c; }
-        .category-team h2 { color: #1a2744; }
+        :root {
+            --patient-teal: #2a8c8c;
+            --team-navy: #1a2744;
+            --bg-gradient: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+        }
 
-        /* Folders/Sub-categories */
-        .folder-group { margin-bottom: 24px; }
-        .folder-title { font-size: 12px; text-transform: uppercase; letter-spacing: 0.1em; color: #94a3b8; font-weight: 700; margin-bottom: 12px; display: flex; align-items: center; gap: 6px; }
-        .folder-title::before { content: '📁'; font-size: 14px; }
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; 
+            background: var(--bg-gradient); 
+            color: #1e293b; 
+            padding: 60px 20px; 
+            line-height: 1.6; 
+            margin: 0; 
+            min-height: 100vh;
+        }
+
+        .container { max-width: 1100px; margin: 0 auto; }
+
+        /* Smooth Entrance Animation */
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .header { 
+            text-align: center; 
+            margin-bottom: 60px; 
+            animation: fadeInUp 0.8s ease-out;
+        }
+
+        h1 { 
+            color: #0f172a; 
+            margin-bottom: 12px; 
+            font-weight: 800; 
+            font-size: clamp(32px, 5vw, 42px); 
+            letter-spacing: -0.02em;
+        }
+
+        .subtitle { color: #64748b; font-size: 1.1rem; margin: 0; font-weight: 400; }
+
+        /* Layout Grid */
+        .directory-grid { 
+            display: grid; 
+            grid-template-columns: 1fr 1fr; 
+            gap: 30px; 
+            animation: fadeInUp 1s ease-out both;
+            animation-delay: 0.2s;
+        }
+
+        @media (max-width: 850px) { .directory-grid { grid-template-columns: 1fr; } }
+
+        /* Main Category Cards */
+        .main-category { 
+            background: rgba(255, 255, 255, 0.7); 
+            backdrop-filter: blur(10px);
+            border-radius: 24px; 
+            padding: 35px; 
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.05), 0 10px 10px -5px rgba(0, 0, 0, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .category-patients { border-top: 8px solid var(--patient-teal); }
+        .category-team { border-top: 8px solid var(--team-navy); }
+
+        h2 { 
+            margin-top: 0; 
+            font-size: 26px; 
+            padding-bottom: 20px; 
+            margin-bottom: 25px; 
+            display: flex; 
+            align-items: center; 
+            gap: 12px; 
+            border-bottom: 1px solid rgba(0,0,0,0.05);
+        }
+
+        .category-patients h2 { color: var(--patient-teal); }
+        .category-team h2 { color: var(--team-navy); }
+
+        /* Folder Styling */
+        .folder-group { margin-bottom: 30px; }
+        .folder-title { 
+            font-size: 11px; 
+            text-transform: uppercase; 
+            letter-spacing: 0.15em; 
+            color: #94a3b8; 
+            font-weight: 800; 
+            margin-bottom: 15px; 
+            display: flex; 
+            align-items: center; 
+            gap: 8px; 
+        }
         
-        ul { list-style: none; padding: 0; margin: 0; display: grid; gap: 10px; }
-        li { margin: 0; }
-        
-        a { display: flex; align-items: center; justify-content: space-between; padding: 14px 18px; border: 1px solid #e2e8f0; border-radius: 10px; text-decoration: none; color: #334155; transition: all 0.2s ease; background: #fafbfc; }
-        a:hover { border-color: #cbd5e1; background: #ffffff; transform: translateX(4px); box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03); }
+        ul { list-style: none; padding: 0; margin: 0; display: grid; gap: 12px; }
+
+        /* Link Styling - The "Fun" Part */
+        a { 
+            display: flex; 
+            align-items: center; 
+            justify-content: space-between; 
+            padding: 16px 20px; 
+            border-radius: 14px; 
+            text-decoration: none; 
+            color: #334155; 
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1); 
+            background: white;
+            border: 1px solid transparent;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+        }
+
+        a:hover { 
+            transform: scale(1.02) translateX(5px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            background: #fff;
+            border-color: #cbd5e1;
+        }
+
         .link-text { font-weight: 600; font-size: 15px; }
-        
+
         /* Tags */
-        .tag { font-size: 10px; padding: 3px 10px; border-radius: 999px; text-transform: uppercase; font-weight: 700; background: #e2e8f0; color: #475569; }
-        .category-patients .tag { background: #e6f4f4; color: #2a8c8c; }
-        .category-team .tag { background: #f1f5f9; color: #1a2744; }
-        .nested-folder { margin-left: 20px; margin-top: 10px; border-left: 2px solid #e2e8f0; padding-left: 15px; }
+        .tag { 
+            font-size: 10px; 
+            padding: 4px 12px; 
+            border-radius: 20px; 
+            text-transform: uppercase; 
+            font-weight: 700; 
+            letter-spacing: 0.05em;
+        }
+
+        .category-patients .tag { background: #e6f4f4; color: var(--patient-teal); }
+        .category-team .tag { background: #f1f5f9; color: var(--team-navy); }
+
+        .category-patients a:hover .link-text { color: var(--patient-teal); }
+        .category-team a:hover .link-text { color: var(--team-navy); }
+
+        .nested-folder { 
+            margin-left: 15px; 
+            margin-top: 15px; 
+            border-left: 2px dashed #e2e8f0; 
+            padding-left: 20px; 
+        }
+
+        /* Footer Branding */
+        .footer {
+            text-align: center;
+            margin-top: 60px;
+            color: #94a3b8;
+            font-size: 14px;
+        }
     </style>
 </head>
 <body>
@@ -53,7 +167,7 @@
         <div class="directory-grid">
             
             <div class="main-category category-patients">
-                <h2>For Patients</h2>
+                <h2><span>🦷</span> For Patients</h2>
                 
                 <div class="folder-group">
                     <div class="folder-title">General</div>
@@ -83,7 +197,7 @@
             </div>
 
             <div class="main-category category-team">
-                <h2>For Seaport Smiles Team</h2>
+                <h2><span>🚀</span> For Seaport Smiles Team</h2>
                 
                 <div class="folder-group">
                     <div class="folder-title">Staff Tools</div>
@@ -102,6 +216,10 @@
                 </div>
             </div>
 
+        </div>
+
+        <div class="footer">
+            &copy; 2024 Seaport Smiles Orthodontics. Digital Artifacts Hub.
         </div>
     </div>
 </body>
