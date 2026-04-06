@@ -52,9 +52,9 @@ const FRONT_DESK = {
         "Scan email inbox and prioritize: prospective qualified leads (new patients) first, then existing patient requests.",
       ]},
       { title: "New Patient / NPE Priority", items: [
-        "NPE consult confirmations: convert Wave Lead to Patient (if not already), add NPE appointment in Wave, add patient to OrthoFi, send OrthoFi email, note to set up IDS profile before end of morning, and create task for TC: NPE scheduled (FYI).",
-        "NPE consult inquiries (in-office or virtual) via website or email: add lead to Wave, contact to schedule via call/text/email, leave voicemail and text if no answer, and create follow-up task tagged: needs apt.",
-        "Listen to voicemails (first pass) for NPE messages only; call back to schedule and create lead in Wave.",
+        {text:"NPE consult confirmations: convert Wave Lead to Patient (if not already), add NPE appointment in Wave, add patient to OrthoFi, send OrthoFi email, note to set up IDS profile before end of morning, and create task for TC: NPE scheduled (FYI).", na:true},
+        {text:"NPE consult inquiries (in-office or virtual) via website or email: add lead to Wave, contact to schedule via call/text/email, leave voicemail and text if no answer, and create follow-up task tagged: needs apt.", na:true},
+        {text:"Listen to voicemails (first pass) for NPE messages only; call back to schedule and create lead in Wave.", na:true},
       ]},
       { title: "Existing Patient Requests", items: [
         "Existing patient reschedule requests: send holding reply confirming receipt and that rescheduling will occur before EOD, place appointment in Holding, and if less than 48 business hours remind patient of NS/LMC fee.",
@@ -67,8 +67,8 @@ const FRONT_DESK = {
         "Check OrthoFi for completed new patient forms, including insurance.",
       ]},
       { title: "Referrals and Documentation", items: [
-        "Read communications from referring dentists or providers.",
-        "Upload referral text to Wave note; if lengthy, summarize into a 3-5 line Wave note using ChatGPT.",
+        {text:"Read communications from referring dentists or providers.", na:true},
+        {text:"Upload referral text to Wave note; if lengthy, summarize into a 3-5 line Wave note using ChatGPT.", na:true},
       ]},
     ],
   },
@@ -77,12 +77,12 @@ const FRONT_DESK = {
     sections: [
       { title: "Patient Flow and Schedule Management", items: [
         "Monitor arriving patients; call immediately if a patient has not checked in at their appointment start time.",
-        "Patients 10+ minutes late must be rescheduled; check appointment history for prior no-shows, apply last-minute cancellation/no-show fee unless first occurrence, and charge in OrthoFi before rescheduling.",
+        {text:"Patients 10+ minutes late must be rescheduled; check appointment history for prior no-shows, apply last-minute cancellation/no-show fee unless first occurrence, and charge in OrthoFi before rescheduling.", na:true},
         "Mark completed appointments as Attended in Wave.",
         "If a patient checks in but steps away (e.g., restroom), un-check in and re-check in when ready to prevent premature clinical pull.",
-        "For ISB / braces bondings, un-check in patient and re-check in only after Office Policy Form is completed.",
+        {text:"For ISB / braces bondings, un-check in patient and re-check in only after Office Policy Form is completed.", na:true},
         "Monitor Holding in Wave and actively schedule appointments.",
-        "Fill open schedule slots with case deliveries (ISB / IDBS / IDBL) and appointments from Holding.",
+        {text:"Fill open schedule slots with case deliveries (ISB / IDBS / IDBL) and appointments from Holding.", na:true},
         "Review open consults and upcoming availability; discuss during huddle and execute plan to fill gaps.",
         "Check next week's appointments and send reminder texts for any unconfirmed visits in Wave.",
       ]},
@@ -90,18 +90,18 @@ const FRONT_DESK = {
         "Monitor Leads Launcher in Wave; remove duplicates and attempt to schedule all leads including inactive/unqualified.",
         "Schedule NPEs.",
         "Track and obtain all pre-NPE requirements including x-rays, dental clearance forms, and NPE intake forms.",
-        "Update IDS profile when dental clearance is received; mark Clearance Rec'd, upload to Wave, and note completed dental clearance rec'd. Clearance must include dentist name, license number, and confirmation of restorative and periodontal status.",
+        {text:"Update IDS profile when dental clearance is received; mark Clearance Rec'd, upload to Wave, and note completed dental clearance rec'd. Clearance must include dentist name, license number, and confirmation of restorative and periodontal status.", na:true},
       ]},
       { title: "OrthoFi and Financial Tasks", items: [
-        "Process insurance EOB emails by logging in, downloading EOBs, and uploading to OrthoFi -- Insurance tab -- Remittance list.",
+        {text:"Process insurance EOB emails by logging in, downloading EOBs, and uploading to OrthoFi -- Insurance tab -- Remittance list.", na:true},
         "Review OrthoFi reports for delinquent accounts and failed payments.",
-        "Contact patients to obtain updated payment information (ACH preferred).",
-        "Contact patients with failed VRS payments to obtain updated payment information.",
-        "Create task for DA when new VRS subscription quotes are accepted (per patient).",
+        {text:"Contact patients to obtain updated payment information (ACH preferred).", na:true},
+        {text:"Contact patients with failed VRS payments to obtain updated payment information.", na:true},
+        {text:"Create task for DA when new VRS subscription quotes are accepted (per patient).", na:true},
         "Check OrthoFi Dashboard -- Messages; respond as needed and contact OrthoFi support for resolution before escalating to doctor.",
       ]},
       { title: "Retainers and Shipping", items: [
-        "Print shipping labels for outgoing retainers, create Wave appointment RetDel Ship or IDShip, and add tracking information using Wave note template.",
+        {text:"Print shipping labels for outgoing retainers, create Wave appointment RetDel Ship or IDShip, and add tracking information using Wave note template.", na:true},
       ]},
       { title: "Email, Phone and Communications", items: [
         "Check and respond to OrthoFi messages daily.",
@@ -111,10 +111,10 @@ const FRONT_DESK = {
       ]},
       { title: "Mail, Documents and Accounting", items: [
         "Open physical mail daily; scan patient-related letters to Wave and give to doctor (write scanned).",
-        "Scan insurance correspondence to Wave and OrthoFi then shred.",
+        {text:"Scan insurance correspondence to Wave and OrthoFi then shred.", na:true},
         "Give doctor relevant correspondence and periodicals; discard junk mail.",
-        "Scan invoices via Adobe Scan and email to QuickBooks (expenses).",
-        "Forward receipts to QuickBooks expenses, mark as read, and archive.",
+        {text:"Scan invoices via Adobe Scan and email to QuickBooks (expenses).", na:true},
+        {text:"Forward receipts to QuickBooks expenses, mark as read, and archive.", na:true},
       ]},
       { title: "Office Upkeep", items: [
         "Clean and stock water station with cups and paper towels; order tea on Amazon as needed.",
@@ -133,7 +133,7 @@ const FRONT_DESK = {
       { title: "Closing Day Duties", items: [
         "Print copies of the next day's schedule with all alerts for all team members.",
         "Review next day's schedule against the Office Policy tracker and note which patients need to sign policies.",
-        "Print all required Office Policy forms for next day's ISBs and bondings (braces).",
+        {text:"Print all required Office Policy forms for next day's ISBs and bondings (braces).", na:true},
         "Inform team during huddle of next day's patients who need to sign documents.",
         "Restock cups and tea at the water station.",
       ]},
@@ -145,10 +145,10 @@ const FRONT_DESK = {
         "Confirm all clinic notes for the day are completed.",
         "Confirm all documents for the day are scanned and uploaded, then shred originals.",
         "Update Welcome Blackboard with exams, starts, and debonds.",
-        "Update NPE exam tracker with new, rescheduled, and cancelled exams.",
-        "Provide TC with all NPE intake forms for the following clinic day.",
-        "Confirm all VRS subscriptions have a task created for DA (Nicole Nguyen).",
-        "File all insurance claims for ISBs and bondings completed that day.",
+        {text:"Update NPE exam tracker with new, rescheduled, and cancelled exams.", na:true},
+        {text:"Provide TC with all NPE intake forms for the following clinic day.", na:true},
+        {text:"Confirm all VRS subscriptions have a task created for DA (Nicole Nguyen).", na:true},
+        {text:"File all insurance claims for ISBs and bondings completed that day.", na:true},
       ]},
     ],
   },
@@ -163,9 +163,9 @@ const CLINIC = {
         "Power up the clinic: turn on all lights, air, water, and vacuum switches. Check that the X-ray and X-ray computer are on; if not, power up and log into Wave Ortho.",
         "Log into all computers and open Wave Ortho, Invisalign, and Virtual Care.",
         "Check Virtual Care for new messages or submissions. Create a Wave Task for any patient needing doctor review or scheduling follow-up.",
-        "Pull all morning cases (Invisalign and retainers) and verify all appliances, lab work, and Viveras are in the office.",
-        "Make sure new starts have their patient kits (bubble pouch, Getting Started handout, scan box/scope).",
-        "Alert Head Assistant + front desk immediately if anything is missing.",
+        {text:"Pull all morning cases (Invisalign and retainers) and verify all appliances, lab work, and Viveras are in the office.", na:true},
+        {text:"Make sure new starts have their patient kits (bubble pouch, Getting Started handout, scan box/scope).", na:true},
+        {text:"Alert Head Assistant + front desk immediately if anything is missing.", na:true},
         "Prepare operatories: wipe chairs, side carts, and counters. Check barriers and replace as needed. Confirm sinks, floors, and countertops are clean before seating the first patient.",
         "Turn on autoclave, check distilled water level, and start a cycle if needed.",
         "Put away sterilized instruments and restock trays, drawers, and supply areas.",
@@ -173,7 +173,7 @@ const CLINIC = {
         "Refill paper towels in clinic and sterilization.",
         "White Glove your area -- reference the Clinic White Glove Checklist.",
         "Check brushing station -- clean sink and counter, restock toothpaste, toothbrushes, cups, and paper towels.",
-        "Verify all morning trays (full bonds, debonds, etc.) are prepped; set up any that were not completed the night before.",
+        {text:"Verify all morning trays (full bonds, debonds, etc.) are prepped; set up any that were not completed the night before.", na:true},
         "Confirm folders and forms (instructions, referral forms, etc.) are fully stocked.",
         "Remove retractors from cold sterilization, rinse, dry, bag, and restock in labeled drawer.",
       ]},
@@ -194,7 +194,7 @@ const CLINIC = {
         "Complete treatment notes prior to seating next patient whenever possible.",
         "Assistants may not use rotary or curing instruments without direct supervision of the orthodontist.",
         "Create next procedure in Wave Ortho before walking the patient to reception for scheduling.",
-        "If Invisalign boxes arrive, unpack and log Received in Office in Wave, store trays in the designated cabinet, and notify the front desk if a patient needs to be scheduled.",
+        {text:"If Invisalign boxes arrive, unpack and log Received in Office in Wave, store trays in the designated cabinet, and notify the front desk if a patient needs to be scheduled.", na:true},
         "Report any supply shortages, equipment issues, or team concerns to the Head Assistant immediately.",
       ]},
     ],
@@ -211,20 +211,20 @@ const CLINIC = {
         "Check that cart water bottles/reservoirs are filled for the next day.",
         "White Glove your area and brushing station (final clean).",
         "Run water through suction.",
-        "Clean vacuum filter (once a week).",
+        {text:"Clean vacuum filter (once a week).", na:true},
       ]},
       { title: "Digital Wrap-Up and Records", items: [
         "Perform a final Virtual Care message check for any new patient submissions or unread messages.",
         "Document and flag any requiring doctor review before leaving (Wave task).",
         "Confirm all progress and final photos have been uploaded to patient records.",
-        "Ensure all retainer orders have been placed through IDS and Lab Cases created in Wave with due dates.",
-        "Verify all VRS subscription orders have been completed and Lab Cases created in Wave with due dates.",
-        "Confirm all refinement Rx's have been submitted and Lab Cases created in Wave with due dates.",
+        {text:"Ensure all retainer orders have been placed through IDS and Lab Cases created in Wave with due dates.", na:true},
+        {text:"Verify all VRS subscription orders have been completed and Lab Cases created in Wave with due dates.", na:true},
+        {text:"Confirm all refinement Rx's have been submitted and Lab Cases created in Wave with due dates.", na:true},
         "Check and complete all assigned Wave Tasks before leaving.",
       ]},
       { title: "Next-Day Preparation", items: [
         "Set up trays for next morning's appointments (include name, wires, progress pan date, elastics, etc.).",
-        "Pre-fill template trays for next day's Invisalign deliveries.",
+        {text:"Pre-fill template trays for next day's Invisalign deliveries.", na:true},
         "Verify all appliances, Invisalign trays, and lab work for tomorrow are in the office.",
         "If anything is missing, alert Head Assistant and TC/front desk immediately.",
       ]},
@@ -273,9 +273,9 @@ const TC = {
         "Have Follow Up tab open in OrthoFi.",
       ]},
       { title: "Pre-Huddle Prep", items: [
-        "Check letsgo@seaportsmiles.com and hello@seaportsmiles.com for any NPE requests that came in overnight -- add to leads tracker and delegate to SC.",
+        {text:"Check letsgo@seaportsmiles.com and hello@seaportsmiles.com for any NPE requests that came in overnight -- add to leads tracker and delegate to SC.", na:true},
         "Verify Pre-Exam Checklist is fully completed by Scheduling Coordinator prior to huddle.",
-        "Review NP Consult Sheets for all new patients; ensure complete.",
+        {text:"Review NP Consult Sheets for all new patients; ensure complete.", na:true},
         "Check OrthoFi for missing paperwork and insurance.",
         "Discuss any special notes, missing info, or concerns with Dr. Osborn and team before huddle.",
         "Coordinate with Front Desk for any missing OrthoFi info so they can obtain it upon check-in.",
@@ -285,8 +285,8 @@ const TC = {
         "Complete all TC Welcome (pre-consult) calls for the next 48 hours using the sheet.",
         "Check OrthoFi to ensure all next day consults have completed paperwork and insurance.",
         "Discuss missing OrthoFi info with FD/SC before the patient arrives.",
-        "Email dental clearance forms to any patients with dentists on file who we have communicated with (requested x-rays). Goal is to receive clearance form in advance of the NPE.",
-        "Contact patients who need appointments from the Start at Home list in OrthoFi.",
+        {text:"Email dental clearance forms to any patients with dentists on file who we have communicated with (requested x-rays). Goal is to receive clearance form in advance of the NPE.", na:true},
+        {text:"Contact patients who need appointments from the Start at Home list in OrthoFi.", na:true},
         "Print this checklist and add patient name.",
       ]},
       { title: "Morning Follow-Up Count", followUpCount: true, items: [
@@ -316,21 +316,21 @@ const TC = {
     label: "Closing", icon: "\uD83C\uDF19", time: "End of Day", color: "#5B4FC4",
     sections: [
       { title: "Treatment Card and Consult Wrap-Up", items: [
-        "Complete all treatment card entries and additional requirements for each consult seen today.",
-        "Wave Treatment Card completed, including ETT and treatment plan.",
-        "Note section completed -- note if multiple treatment plans were presented.",
-        "Status and Tracking changed: Exam completed, contract completed.",
-        "Update patient start record date on OrthoFi.",
-        "DDS letter sent.",
-        "Check Start at Home list on OrthoFi dashboard.",
-        "Check all Invisalign Lab Cases have been added to Wave.",
+        {text:"Complete all treatment card entries and additional requirements for each consult seen today.", na:true},
+        {text:"Wave Treatment Card completed, including ETT and treatment plan.", na:true},
+        {text:"Note section completed -- note if multiple treatment plans were presented.", na:true},
+        {text:"Status and Tracking changed: Exam completed, contract completed.", na:true},
+        {text:"Update patient start record date on OrthoFi.", na:true},
+        {text:"DDS letter sent.", na:true},
+        {text:"Check Start at Home list on OrthoFi dashboard.", na:true},
+        {text:"Check all Invisalign Lab Cases have been added to Wave.", na:true},
       ]},
       { title: "Room and Admin", items: [
         "Room white gloved prior to leaving for the day.",
         "Complete TC Daily Summary Report -- update goals flyer in break room.",
         "Complete Huddle Prep for next day -- review patients for the day with Dr./team and discuss any concerns.",
         "Make sure all TC photos taken that day have been uploaded to Wave.",
-        "Complete all patient referrals for DDS/specialist.",
+        {text:"Complete all patient referrals for DDS/specialist.", na:true},
       ]},
       { title: "Shutdown", items: [
         "Shut down computers (update if prompted).",
@@ -373,7 +373,9 @@ function buildEmptyChecks(data) {
   return s;
 }
 function countItems(data, key) { return data[key].sections.reduce((a, s) => a + s.items.length, 0); }
-function countChecked(checks, key) { return Object.values(checks[key] || {}).filter(Boolean).length; }
+function countChecked(checks, key) { return Object.values(checks[key] || {}).filter(v => v === true || v === "na").length; }
+function itemText(item) { return typeof item === "string" ? item : item.text; }
+function itemNaEligible(item) { return typeof item === "object" && item.na === true; }
 
 // ── CHECKLIST COMPONENT ───────────────────────────────────────────────────────
 function Checklist({ roleKey, onBack }) {
@@ -407,7 +409,11 @@ function Checklist({ roleKey, onBack }) {
 
   function toggle(si, ii) {
     const k = si+"-"+ii;
-    setChecks(p => ({ ...p, [active]: { ...p[active], [k]: !p[active][k] } }));
+    setChecks(p => ({ ...p, [active]: { ...p[active], [k]: p[active][k] === true ? false : true } }));
+  }
+  function toggleNA(si, ii) {
+    const k = si+"-"+ii;
+    setChecks(p => ({ ...p, [active]: { ...p[active], [k]: p[active][k] === "na" ? false : "na" } }));
   }
   function toggleSec(si) {
     setExp(p => { const c={...p,[active]:[...p[active]]}; c[active][si]=!c[active][si]; return c; });
@@ -501,7 +507,7 @@ function Checklist({ roleKey, onBack }) {
 
         {/* SECTIONS */}
         {list.sections.map((sec, si) => {
-          const sChk = sec.items.filter((_,ii) => checks[active][si+"-"+ii]).length;
+          const sChk = sec.items.filter((_,ii) => { const v=checks[active][si+"-"+ii]; return v===true||v==="na"; }).length;
           const sDone = sChk === sec.items.length;
           const isExp = exp[active][si];
           const fuKey = active+"-"+si;
@@ -520,14 +526,22 @@ function Checklist({ roleKey, onBack }) {
               {isExp && (
                 <div style={S.items}>
                   {sec.items.map((item,ii) => {
-                    const chk = checks[active][si+"-"+ii];
+                    const raw = itemText(item);
+                    const naOk = itemNaEligible(item);
+                    const val = checks[active][si+"-"+ii];
+                    const isChk = val === true;
+                    const isNa = val === "na";
+                    const isDone = isChk || isNa;
                     return (
-                      <button key={ii} style={{...S.item,...(chk?S.itemDone:{})}} onClick={()=>toggle(si,ii)} className="item-btn">
-                        <span style={{...S.box,background:chk?list.color:"#fff",borderColor:chk?list.color:"#CBD5E1"}}>
-                          {chk && <span style={S.tick}>{"\u2713"}</span>}
-                        </span>
-                        <span style={{...S.itemTxt,...(chk?S.itemTxtDone:{})}}>{item}</span>
-                      </button>
+                      <div key={ii} style={{...S.item,...(isDone?S.itemDone:{}),cursor:"default"}}>
+                        <button style={{...S.box,background:isChk?list.color:"#fff",borderColor:isChk?list.color:"#CBD5E1",cursor:"pointer"}} onClick={()=>toggle(si,ii)} className="item-btn">
+                          {isChk && <span style={S.tick}>{"\u2713"}</span>}
+                        </button>
+                        <span style={{...S.itemTxt,...(isDone?S.itemTxtDone:{}),...(isNa?{opacity:0.35}:{})}} onClick={()=>toggle(si,ii)} className="item-btn">{raw}</span>
+                        {naOk && (
+                          <button onClick={()=>toggleNA(si,ii)} className="na-btn" style={{...S.naBtn,background:isNa?"#94A3B8":"transparent",color:isNa?"#fff":"#94A3B8",borderColor:isNa?"#94A3B8":"#CBD5E1"}}>N/A</button>
+                        )}
+                      </div>
                     );
                   })}
                   {sec.followUpCount && (
@@ -601,7 +615,7 @@ function HistoryView({ onBack }) {
     const checks = (dayData.checks || {})[detail.tabKey] || {};
     const doneEntry = (dayData.done || {})[detail.tabKey];
     const totalItems = tabData.sections.reduce((a,s)=>a+s.items.length,0);
-    const checkedCount = Object.values(checks).filter(Boolean).length;
+    const checkedCount = Object.values(checks).filter(v => v === true || v === "na").length;
     return (
       <div style={H.root}>
         <style>{css}</style>
@@ -623,11 +637,15 @@ function HistoryView({ onBack }) {
             <div key={si} style={H.section}>
               <div style={H.secTitle}>{sec.title}</div>
               {sec.items.map((item,ii) => {
-                const chk = checks[si+"-"+ii];
+                const raw = itemText(item);
+                const val = checks[si+"-"+ii];
+                const isChk = val === true;
+                const isNa = val === "na";
+                const isDone = isChk || isNa;
                 return (
-                  <div key={ii} style={{...H.histItem, background:chk?"#F0FDF4":"#FFF5F5"}}>
-                    <span style={{...H.histBox, background:chk?"#22c55e":"#FCA5A5", color:"#fff"}}>{chk?"\u2713":"\u2715"}</span>
-                    <span style={{...H.histTxt, color:chk?"#166534":"#991B1B", opacity:chk?1:0.75}}>{item}</span>
+                  <div key={ii} style={{...H.histItem, background:isChk?"#F0FDF4":isNa?"#F8FAFC":"#FFF5F5"}}>
+                    <span style={{...H.histBox, background:isChk?"#22c55e":isNa?"#94A3B8":"#FCA5A5", color:"#fff"}}>{isChk?"\u2713":isNa?"N/A":"\u2715"}</span>
+                    <span style={{...H.histTxt, color:isChk?"#166534":isNa?"#64748B":"#991B1B", opacity:isDone?1:0.75}}>{raw}</span>
                   </div>
                 );
               })}
@@ -672,7 +690,7 @@ function HistoryView({ onBack }) {
                         const entry = doneMap[tabKey];
                         const checks = (roleData.checks||{})[tabKey]||{};
                         const total = tab.sections.reduce((a,s)=>a+s.items.length,0);
-                        const chkd = Object.values(checks).filter(Boolean).length;
+                        const chkd = Object.values(checks).filter(v => v === true || v === "na").length;
                         const started = chkd > 0;
                         return (
                           <button key={tabKey}
@@ -848,6 +866,7 @@ Object.assign(S, {
   doneBanner: { display:"flex", alignItems:"center", justifyContent:"space-between", background:"#DCFCE7", border:"1px solid #86EFAC", color:"#15803D", padding:"14px 18px", borderRadius:14, fontSize:14, fontWeight:600, gap:10 },
   slackBtn: { background:"#4A154B", color:"#fff", fontSize:12, fontWeight:700, padding:"6px 14px", borderRadius:8, textDecoration:"none", whiteSpace:"nowrap", flexShrink:0 },
   resetBtn: { background:"none", border:"1px solid #86EFAC", color:"#15803D", fontSize:12, fontWeight:600, padding:"4px 12px", borderRadius:8, cursor:"pointer", fontFamily:"inherit" },
+  naBtn: { marginLeft:"auto", flexShrink:0, fontSize:10, fontWeight:700, padding:"2px 8px", borderRadius:6, border:"1px solid", cursor:"pointer", fontFamily:"inherit", lineHeight:"1.6", transition:"all 0.15s" },
 });
 
 const H = {
@@ -885,6 +904,7 @@ const css = `
   .tab-btn:hover { background: #F8FAFC; }
   .card-btn:hover { background: #FAFAFA; }
   .item-btn:hover { background: #F8FAFC !important; }
+  .na-btn:hover { background: #E2E8F0 !important; color: #475569 !important; border-color: #94A3B8 !important; }
   .counter-btn:hover { background: #F1F5F9 !important; }
   .chip-btn:hover { filter: brightness(0.95); }
   input:focus { outline: 2px solid #3B82F6 !important; border-color: #3B82F6 !important; }
