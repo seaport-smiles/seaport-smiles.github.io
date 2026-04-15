@@ -42,6 +42,81 @@ function saveDay(role, data) {
   localStorage.setItem(dayKey(role), JSON.stringify(data));
 }
 
+// -- PERIODIC UTILS --
+function todayDayName() {
+  const days = ["sunday","monday","tuesday","wednesday","thursday","friday","saturday"];
+  return days[new Date().getDay()];
+}
+function weekNum() {
+  const d = new Date();
+  const jan1 = new Date(d.getFullYear(), 0, 1);
+  return Math.ceil(((d - jan1) / 86400000 + jan1.getDay() + 1) / 7);
+}
+function weeklyKey(role) {
+  const d = new Date();
+  return "ss_w" + d.getFullYear() + "_" + weekNum() + "_" + role;
+}
+function monthlyKey(role) {
+  const d = new Date();
+  return "ss_m" + d.getFullYear() + "_" + (d.getMonth()+1) + "_" + role;
+}
+function loadWeekly(role) {
+  try { return JSON.parse(localStorage.getItem(weeklyKey(role))) || {}; }
+  catch { return {}; }
+}
+function saveWeekly(role, data) {
+  localStorage.setItem(weeklyKey(role), JSON.stringify(data));
+}
+function loadMonthly(role) {
+  try { return JSON.parse(localStorage.getItem(monthlyKey(role))) || {}; }
+  catch { return {}; }
+}
+function saveMonthly(role, data) {
+  localStorage.setItem(monthlyKey(role), JSON.stringify(data));
+}
+
+// -- SETTINGS --
+const SETTINGS_KEY = "ss_settings";
+function loadSettings() {
+  try { return JSON.parse(localStorage.getItem(SETTINGS_KEY)) || {}; }
+  catch { return {}; }
+}
+function saveSettings(s) {
+  localStorage.setItem(SETTINGS_KEY, JSON.stringify(s));
+}
+function getItemDay(roleKey, itemIdx, defaultDay, settings) {
+  return (settings.weeklyDays && settings.weeklyDays[roleKey] && settings.weeklyDays[roleKey][itemIdx] !== undefined)
+    ? settings.weeklyDays[roleKey][itemIdx]
+    : defaultDay;
+}
+function getMonthlyRecurrence(roleKey, settings) {
+  if (settings.monthly && settings.monthly[roleKey]) return settings.monthly[roleKey];
+  return DEFAULT_MONTHLY_RECURRENCE[roleKey] || { week: 1, day: "monday" };
+}
+function calcMonthlyDate(week, dayName) {
+  const dayNums = { sunday:0, monday:1, tuesday:2, wednesday:3, thursday:4, friday:5, saturday:6 };
+  const target = dayNums[dayName];
+  const now = new Date();
+  const d = new Date(now.getFullYear(), now.getMonth(), 1);
+  let count = 0;
+  while (d.getMonth() === now.getMonth()) {
+    if (d.getDay() === target) {
+      count++;
+      if (count === week) return new Date(d);
+    }
+    d.setDate(d.getDate() + 1);
+  }
+  return null;
+}
+function fmtMonthlyDate(date) {
+  if (!date) return "Not scheduled this month";
+  return date.toLocaleDateString("en-US", { weekday:"long", month:"long", day:"numeric" });
+}
+function ordinal(n) {
+  if (n === 1) return "1st"; if (n === 2) return "2nd";
+  if (n === 3) return "3rd"; return n + "th";
+}
+
 // ── DATA ──────────────────────────────────────────────────────────────────────
 const FRONT_DESK = {
   opening: {
@@ -57,14 +132,14 @@ const FRONT_DESK = {
         {text:"Listen to voicemails (first pass) for NPE messages only; call back to schedule and create lead in Wave.", na:true},
       ]},
       { title: "Existing Patient Requests", items: [
-        "Existing patient reschedule requests: send holding reply confirming receipt and that rescheduling will occur before EOD, place appointment in Holding, and if less than 48 business hours remind patient of NS/LMC fee.",
+        {text:"Existing patient reschedule requests: send holding reply confirming receipt and that rescheduling will occur before EOD, place appointment in Holding, and if less than 48 business hours remind patient of NS/LMC fee.", na:true},
         "Keep all messages marked unread until resolved and no further action is required.",
       ]},
       { title: "Wave / OrthoFi Systems", items: [
-        "Open OrthoFi and confirm all next-day consults and appointments match between Wave and OrthoFi.",
-        "Check Wave text messages and reply to all; delete threads that are fully resolved.",
+        {text:"Open OrthoFi and confirm all next-day consults and appointments match between Wave and OrthoFi.", na:true},
+        {text:"Check Wave text messages and reply to all; delete threads that are fully resolved.", na:true},
         "Check Wave tasks and complete all possible; communicate any past-due tasks to Dr. Osborn before lunch.",
-        "Check OrthoFi for completed new patient forms, including insurance.",
+        {text:"Check OrthoFi for completed new patient forms, including insurance.", na:true},
       ]},
       { title: "Referrals and Documentation", items: [
         {text:"Read communications from referring dentists or providers.", na:true},
@@ -83,20 +158,16 @@ const FRONT_DESK = {
         {text:"For ISB / braces bondings, un-check in patient and re-check in only after Office Policy Form is completed.", na:true},
         "Monitor Holding in Wave and actively schedule appointments.",
         {text:"Fill open schedule slots with case deliveries (ISB / IDBS / IDBL) and appointments from Holding.", na:true},
-        "Review open consults and upcoming availability; discuss during huddle and execute plan to fill gaps.",
+        {text:"Review open consults and upcoming availability; discuss during huddle and execute plan to fill gaps.", na:true},
         "Check next week's appointments and send reminder texts for any unconfirmed visits in Wave.",
       ]},
       { title: "Leads and New Patient Exams (NPEs)", items: [
-        "Monitor Leads Launcher in Wave; remove duplicates and attempt to schedule all leads including inactive/unqualified.",
-        "Schedule NPEs.",
-        "Track and obtain all pre-NPE requirements including x-rays, dental clearance forms, and NPE intake forms.",
+        {text:"Monitor Leads Launcher in Wave; remove duplicates and attempt to schedule all leads including inactive/unqualified.", na:true},
+        {text:"Schedule NPEs.", na:true},
+        {text:"Track and obtain all pre-NPE requirements including x-rays, dental clearance forms, and NPE intake forms.", na:true},
         {text:"Update IDS profile when dental clearance is received; mark Clearance Rec'd, upload to Wave, and note completed dental clearance rec'd. Clearance must include dentist name, license number, and confirmation of restorative and periodontal status.", na:true},
       ]},
       { title: "OrthoFi and Financial Tasks", items: [
-        {text:"Process insurance EOB emails by logging in, downloading EOBs, and uploading to OrthoFi -- Insurance tab -- Remittance list.", na:true},
-        "Review OrthoFi reports for delinquent accounts and failed payments.",
-        {text:"Contact patients to obtain updated payment information (ACH preferred).", na:true},
-        {text:"Contact patients with failed VRS payments to obtain updated payment information.", na:true},
         {text:"Create task for DA when new VRS subscription quotes are accepted (per patient).", na:true},
         "Check OrthoFi Dashboard -- Messages; respond as needed and contact OrthoFi support for resolution before escalating to doctor.",
       ]},
@@ -104,14 +175,14 @@ const FRONT_DESK = {
         {text:"Print shipping labels for outgoing retainers, create Wave appointment RetDel Ship or IDShip, and add tracking information using Wave note template.", na:true},
       ]},
       { title: "Email, Phone and Communications", items: [
-        "Check and respond to OrthoFi messages daily.",
-        "For uncertain emails, consult Dr. Osborn, TC, or DA as appropriate.",
-        "Block or unsubscribe from marketing emails.",
-        "Delete addressed voicemails from GoTo to maintain capacity (99 max).",
+        {text:"Check and respond to OrthoFi messages daily.", na:true},
+        {text:"For uncertain emails, consult Dr. Osborn, TC, or DA as appropriate.", na:true},
+        {text:"Block or unsubscribe from marketing emails.", na:true},
+        {text:"Delete addressed voicemails from GoTo to maintain capacity (99 max).", na:true},
       ]},
       { title: "Mail, Documents and Accounting", items: [
         "Open physical mail daily; scan patient-related letters to Wave and give to doctor (write scanned).",
-        {text:"Scan insurance correspondence to Wave and OrthoFi then shred.", na:true},
+        {text:"Scan insurance correspondence to patient's chart in Wave and OrthoFi then shred.", na:true},
         "Give doctor relevant correspondence and periodicals; discard junk mail.",
         {text:"Scan invoices via Adobe Scan and email to QuickBooks (expenses).", na:true},
         {text:"Forward receipts to QuickBooks expenses, mark as read, and archive.", na:true},
@@ -119,11 +190,8 @@ const FRONT_DESK = {
       { title: "Office Upkeep", items: [
         "Clean and stock water station with cups and paper towels; order tea on Amazon as needed.",
       ]},
-      { title: "Collections & Outreach", items: [
+      { title: "Collections", items: [
         "OrthoFi Collection Cadence: step in where auto-follow-up has not resolved overdue accounts.",
-        "Chase outstanding balances: call or text patients with overdue accounts.",
-        "School & community outreach: execute weekly outreach per school outreach tracker.",
-        "Referral cultivation: coordinate drop-off deliveries to referring providers.",
       ]},
     ],
   },
@@ -134,7 +202,7 @@ const FRONT_DESK = {
         "Print copies of the next day's schedule with all alerts for all team members.",
         "Review next day's schedule against the Office Policy tracker and note which patients need to sign policies.",
         {text:"Print all required Office Policy forms for next day's ISBs and bondings (braces).", na:true},
-        "Inform team during huddle of next day's patients who need to sign documents.",
+        {text:"Inform team during huddle of next day's patients who need to sign documents.", na:true},
         "Restock cups and tea at the water station.",
       ]},
       { title: "End-of-Day Communication", items: [
@@ -144,7 +212,7 @@ const FRONT_DESK = {
       { title: "Documentation and Systems", items: [
         "Confirm all clinic notes for the day are completed.",
         "Confirm all documents for the day are scanned and uploaded, then shred originals.",
-        "Update Welcome Blackboard with exams, starts, and debonds.",
+        "Update Welcome Blackboard with exams, starts, and debonds. And birthdays (+/- 2 weeks)",
         {text:"Update NPE exam tracker with new, rescheduled, and cancelled exams.", na:true},
         {text:"Provide TC with all NPE intake forms for the following clinic day.", na:true},
         {text:"Confirm all VRS subscriptions have a task created for DA (Nicole Nguyen).", na:true},
@@ -211,7 +279,7 @@ const CLINIC = {
         "Check that cart water bottles/reservoirs are filled for the next day.",
         "White Glove your area and brushing station (final clean).",
         "Run water through suction.",
-        {text:"Clean vacuum filter (once a week).", na:true},
+        {text:"Clean vacuum filter -- weekly task, see Weekly Checklist.", na:true},
       ]},
       { title: "Digital Wrap-Up and Records", items: [
         "Perform a final Virtual Care message check for any new patient submissions or unread messages.",
@@ -305,8 +373,8 @@ const TC = {
       ]},
       { title: "Pending Patient Outreach", items: [
         "2024 & prior no-starts: send Pending Follow-up letter per template.",
-        "Jan–Oct 2025 exams: send “New Year, New You Smile” outreach campaign via email and text.",
-        "Nov 2025–present: follow OrthoFi hybrid Pending Protocol.",
+        "Jan-Oct 2025 exams: send New Year, New You Smile outreach campaign via email and text.",
+        "Nov 2025-present: follow OrthoFi hybrid Pending Protocol.",
         "Update Exams/Starts Tracker: enter story, barrier, and follow-up date for each contacted patient.",
         "End of week: submit completed weekly checklist to Diana.",
       ]},
@@ -324,7 +392,7 @@ const TC = {
         {text:"DDS letter sent.", na:true},
         {text:"Check Start at Home list on OrthoFi dashboard.", na:true},
         {text:"Check all Invisalign Lab Cases have been added to Wave.", na:true},
-        {text:"Send DDS/DMD treatment start letter for any patients who bonded or started Invisalign today — include treatment plan summary, start date, and appliance type. Send via email; mail physical letter to VIP referrers.", na:true},
+        {text:"Send DDS/DMD treatment start letter for any patients who bonded or started Invisalign today -- include treatment plan summary, start date, and appliance type. Send via email; mail physical letter to VIP referrers.", na:true},
       ]},
       { title: "Room and Admin", items: [
         "Room white gloved prior to leaving for the day.",
@@ -332,7 +400,7 @@ const TC = {
         "Complete Huddle Prep for next day -- review patients for the day with Dr./team and discuss any concerns.",
         "Make sure all TC photos taken that day have been uploaded to Wave.",
         {text:"Complete all patient referrals for DDS/specialist.", na:true},
-        {text:"Send DDS/DMD thank-you letter with final photos for any patients who debonded or completed treatment today — thank the dentist for the referral, note treatment outcome, and include before/after photos.", na:true},
+        {text:"Send DDS/DMD thank-you letter with final photos for any patients who debonded or completed treatment today -- thank the dentist for the referral, note treatment outcome, and include before/after photos.", na:true},
       ]},
       { title: "Shutdown", items: [
         "Shut down computers (update if prompted).",
@@ -365,6 +433,48 @@ const ROLES = {
   tc:        { label: "Treatment Coordinator", sub: "TC Workflow", icon: "\uD83D\uDCCB", color: "#C2610F", grad: "linear-gradient(135deg, #1A0A00 0%, #3D1A00 100%)", data: TC },
 };
 
+// ── PERIODIC DATA ─────────────────────────────────────────────────────────────
+const WEEKLY_DATA = {
+  frontdesk: [
+    { text: "Review OrthoFi reports for delinquent accounts. Contact patients with overdue balances and failed VRS payments for updated payment information (ACH preferred) -- batch in one outreach session.", defaultDay: "tuesday" },
+    { text: "Chase outstanding balances: call or text patients with overdue accounts.", defaultDay: "tuesday" },
+    { text: "Process insurance EOB emails: log in, download EOBs, upload to OrthoFi -- Insurance tab -- Remittance list.", defaultDay: "wednesday" },
+    { text: "School & community outreach: execute weekly outreach per school outreach tracker.", defaultDay: "monday" },
+  ],
+  clinic: [
+    { text: "Clean vacuum filter.", defaultDay: "friday" },
+    { text: "Deep clean brushing station: scrub tiles, drain, mirror, and restock toothpaste and toothbrush supply.", defaultDay: "friday" },
+    { text: "Wipe down autoclave exterior; inspect door seal and gasket.", defaultDay: "friday" },
+    { text: "Supply threshold check: review bands, brackets, wires, composites, bonding agents -- flag anything at or below reorder level.", defaultDay: "friday" },
+    { text: "Log and review autoclave biological indicator (spore test) results for the week.", defaultDay: "friday" },
+    { text: "Clean and disinfect iTero scanner per manufacturer guidelines.", defaultDay: "friday" },
+  ],
+  tc: [
+    { text: "Review all pending follow-up patients; update Exams/Starts Tracker with status, barrier, and next action.", defaultDay: "monday" },
+    { text: "Compile weekly stats: exams scheduled, completed, converted to starts, pending -- share with team at Monday huddle.", defaultDay: "monday" },
+    { text: "Audit Start at Home list: identify patients stalled more than 2 weeks and escalate to Dr. Osborn.", defaultDay: "monday" },
+    { text: "Audit OrthoFi for any consults from the past week missing treatment cards, Wave notes, or DDS letters.", defaultDay: "monday" },
+  ],
+};
+
+const MONTHLY_DATA = {
+  frontdesk: [
+    { text: "Referral cultivation: coordinate drop-off deliveries to referring providers." },
+  ],
+  clinic: [],
+  tc: [],
+};
+
+const DEFAULT_MONTHLY_RECURRENCE = {
+  frontdesk: { week: 3, day: "thursday" },
+  clinic:    { week: 1, day: "friday" },
+  tc:        { week: 1, day: "monday" },
+};
+
+const WEEKDAYS = ["monday","tuesday","wednesday","thursday","friday"];
+const WEEKDAY_SHORT = { monday:"Mon", tuesday:"Tue", wednesday:"Wed", thursday:"Thu", friday:"Fri" };
+const WEEKDAY_FULL  = { monday:"Monday", tuesday:"Tuesday", wednesday:"Wednesday", thursday:"Thursday", friday:"Friday" };
+
 // ── CHECKLIST HELPERS ─────────────────────────────────────────────────────────
 function buildEmptyChecks(data) {
   const s = {};
@@ -379,13 +489,19 @@ function countChecked(checks, key) { return Object.values(checks[key] || {}).fil
 function itemText(item) { return typeof item === "string" ? item : item.text; }
 function itemNaEligible(item) { return typeof item === "object" && item.na === true; }
 
-// ── CHECKLIST COMPONENT ───────────────────────────────────────────────────────
+const SLACK_URL  = "https://seaportsmiles-group.slack.com/archives/C0AQ7HK0P3P";
+const SLACK_HOOK = ["https://hooks.slack.com/services","T07EBS8SEMV","B0AQH3K9LAG","6kZlRqhjy7fiVbkKtpYQxNFp"].join("/");
+
+function postSlack(msg) {
+  fetch(SLACK_HOOK, { method:"POST", mode:"no-cors", headers:{"Content-Type":"application/x-www-form-urlencoded"}, body:"payload="+encodeURIComponent(JSON.stringify({text:msg})) });
+}
+
+// ── CHECKLIST COMPONENT (DAILY) ───────────────────────────────────────────────
 function Checklist({ roleKey, onBack }) {
   const role = ROLES[roleKey];
   const data = role.data;
   const tabs = Object.keys(data);
 
-  // Load today's saved state
   const saved = loadDay(roleKey);
   const [name, setName]     = useState(saved.name || "");
   const [checks, setChecks] = useState(saved.checks || buildEmptyChecks(data));
@@ -395,13 +511,8 @@ function Checklist({ roleKey, onBack }) {
   const [exp, setExp]       = useState(() => { const e={}; tabs.forEach(k => { e[k]=data[k].sections.map(()=>true); }); return e; });
   const [toast, setToast]   = useState(null);
   const [nameErr, setNameErr] = useState(false);
-  const SLACK_URL = "https://seaportsmiles-group.slack.com/archives/C0AQ7HK0P3P";
-  const SLACK_HOOK = ["https://hooks.slack.com/services","T07EBS8SEMV","B0AQH3K9LAG","6kZlRqhjy7fiVbkKtpYQxNFp"].join("/");
 
-  // Auto-save on every state change
-  useEffect(() => {
-    saveDay(roleKey, { name, checks, done, fuCounts });
-  }, [name, checks, done, fuCounts]);
+  useEffect(() => { saveDay(roleKey, { name, checks, done, fuCounts }); }, [name, checks, done, fuCounts]);
 
   const list = data[active];
   const total = countItems(data, active);
@@ -425,21 +536,11 @@ function Checklist({ roleKey, onBack }) {
     setNameErr(false);
     const now = new Date().toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"});
     const today = new Date().toLocaleDateString("en-US",{weekday:"long",month:"long",day:"numeric"});
-    const entry = { name: name.trim(), at: now };
-    setDone(p => ({ ...p, [active]: entry }));
+    setDone(p => ({ ...p, [active]: { name: name.trim(), at: now } }));
     setToast(list.label + " complete!");
     setTimeout(() => setToast(null), 4000);
     setTimeout(() => window.open(SLACK_URL, "_blank"), 400);
-    // Auto-post completion log to Slack
-    const msg = JSON.stringify({
-      text: `\u2705 *${name.trim()}* completed *${role.label} \u2014 ${list.label}* at ${now} on ${today}`
-    });
-    fetch(SLACK_HOOK, {
-      method: "POST",
-      mode: "no-cors",
-      headers: { "Content-Type": "application/x-www-form-urlencoded" },
-      body: "payload=" + encodeURIComponent(msg)
-    });
+    postSlack("\u2705 *" + name.trim() + "* completed *" + role.label + " \u2014 " + list.label + "* at " + now + " on " + today);
   }
   function reset() {
     const fresh = buildEmptyChecks(data);
@@ -451,30 +552,22 @@ function Checklist({ roleKey, onBack }) {
     <div style={S.root}>
       <style>{css}</style>
       {toast && <div style={S.toast}>{toast} -- Photo to Slack</div>}
-
-      {/* HEADER */}
       <div style={{ ...S.header, background: role.grad }}>
-        <button onClick={onBack} style={S.backBtn} className="back-btn">&#8592; Roles</button>
+        <button onClick={onBack} style={S.backBtn} className="back-btn">&#8592; Back</button>
         <div style={S.brand}>
           <div style={S.brandName}>Seaport Smiles</div>
-          <div style={S.brandSub}>{role.label}</div>
+          <div style={S.brandSub}>{role.label} -- Daily</div>
         </div>
         <div style={S.dateChip}>{new Date().toLocaleDateString("en-US",{weekday:"short",month:"short",day:"numeric"})}</div>
       </div>
-
-      {/* NAME BAR */}
       <div style={S.nameBar}>
         <span style={S.nameIcon}>\uD83D\uDC64</span>
-        <input
-          style={{ ...S.nameInput, borderColor: nameErr ? "#EF4444" : "#E2E8F0" }}
+        <input style={{ ...S.nameInput, borderColor: nameErr ? "#EF4444" : "#E2E8F0" }}
           placeholder="Your name (required to complete)"
           value={name}
-          onChange={e => { setName(e.target.value); if(e.target.value) setNameErr(false); }}
-        />
+          onChange={e => { setName(e.target.value); if(e.target.value) setNameErr(false); }} />
         {nameErr && <span style={S.nameErr}>Enter your name first</span>}
       </div>
-
-      {/* TABS */}
       <div style={S.tabs}>
         {tabs.map(key => {
           const l=data[key], tot=countItems(data,key), chk=countChecked(checks,key);
@@ -492,8 +585,6 @@ function Checklist({ roleKey, onBack }) {
           );
         })}
       </div>
-
-      {/* PROGRESS */}
       <div style={S.content}>
         <div style={S.progWrap}>
           <div style={S.progHead}>
@@ -506,8 +597,6 @@ function Checklist({ roleKey, onBack }) {
             {done[active] && <span style={{...S.progCount,color:"#22c55e",fontWeight:600}}>&#10003; {done[active].name} &mdash; {done[active].at}</span>}
           </div>
         </div>
-
-        {/* SECTIONS */}
         {list.sections.map((sec, si) => {
           const sChk = sec.items.filter((_,ii) => { const v=checks[active][si+"-"+ii]; return v===true||v==="na"; }).length;
           const sDone = sChk === sec.items.length;
@@ -533,13 +622,13 @@ function Checklist({ roleKey, onBack }) {
                     const val = checks[active][si+"-"+ii];
                     const isChk = val === true;
                     const isNa = val === "na";
-                    const isDone = isChk || isNa;
+                    const isDoneItem = isChk || isNa;
                     return (
-                      <div key={ii} style={{...S.item,...(isDone?S.itemDone:{}),cursor:"default"}}>
+                      <div key={ii} style={{...S.item,...(isDoneItem?S.itemDone:{}),cursor:"default"}}>
                         <button style={{...S.box,background:isChk?list.color:"#fff",borderColor:isChk?list.color:"#CBD5E1",cursor:"pointer"}} onClick={()=>toggle(si,ii)} className="item-btn">
                           {isChk && <span style={S.tick}>{"\u2713"}</span>}
                         </button>
-                        <span style={{...S.itemTxt,...(isDone?S.itemTxtDone:{}),...(isNa?{opacity:0.35}:{})}} onClick={()=>toggle(si,ii)} className="item-btn">{raw}</span>
+                        <span style={{...S.itemTxt,...(isDoneItem?S.itemTxtDone:{}),...(isNa?{opacity:0.35}:{})}} onClick={()=>toggle(si,ii)} className="item-btn">{raw}</span>
                         {naOk && (
                           <button onClick={()=>toggleNA(si,ii)} className="na-btn" style={{...S.naBtn,background:isNa?"#94A3B8":"transparent",color:isNa?"#fff":"#94A3B8",borderColor:isNa?"#94A3B8":"#CBD5E1"}}>N/A</button>
                         )}
@@ -561,8 +650,6 @@ function Checklist({ roleKey, onBack }) {
             </div>
           );
         })}
-
-        {/* FOOTER */}
         <div style={S.footer}>
           {done[active] ? (
             <div style={S.doneBanner}>
@@ -584,15 +671,477 @@ function Checklist({ roleKey, onBack }) {
   );
 }
 
+// ── WEEKLY CHECKLIST ──────────────────────────────────────────────────────────
+function WeeklyChecklist({ roleKey, onBack }) {
+  const role = ROLES[roleKey];
+  const items = WEEKLY_DATA[roleKey] || [];
+  const todayDay = todayDayName();
+  const defaultTab = WEEKDAYS.includes(todayDay) ? todayDay : "monday";
+  const [active, setActive] = useState(defaultTab);
+  const [settings] = useState(loadSettings());
+  const saved = loadWeekly(roleKey);
+  const [checks, setChecks] = useState(saved.checks || {});
+  const [done, setDone]     = useState(saved.done || {});
+  const [name, setName]     = useState(saved.name || "");
+  const [nameErr, setNameErr] = useState(false);
+  const [toast, setToast]   = useState(null);
+
+  useEffect(() => { saveWeekly(roleKey, { name, checks, done }); }, [name, checks, done]);
+
+  function getDayIdxs(day) {
+    return items.reduce((acc, item, idx) => {
+      if (getItemDay(roleKey, idx, item.defaultDay, settings) === day) acc.push(idx);
+      return acc;
+    }, []);
+  }
+
+  const dayIdxs = getDayIdxs(active);
+  const total   = dayIdxs.length;
+  const checked = dayIdxs.filter(idx => checks[idx] === true).length;
+  const pct     = total ? Math.round(checked/total*100) : 0;
+  const allDone = total > 0 && checked === total;
+
+  function toggle(idx) {
+    setChecks(p => ({ ...p, [idx]: !p[idx] }));
+  }
+  function markDone() {
+    if (!name.trim()) { setNameErr(true); return; }
+    setNameErr(false);
+    const now = new Date().toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"});
+    const today = new Date().toLocaleDateString("en-US",{weekday:"long",month:"long",day:"numeric"});
+    setDone(p => ({ ...p, [active]: { name: name.trim(), at: now } }));
+    setToast(WEEKDAY_FULL[active] + " tasks complete!");
+    setTimeout(() => setToast(null), 4000);
+    setTimeout(() => window.open(SLACK_URL, "_blank"), 400);
+    postSlack("\u2705 *" + name.trim() + "* completed *" + role.label + " -- Weekly (" + WEEKDAY_FULL[active] + ")* at " + now + " on " + today);
+  }
+  function reset() {
+    const newChk = { ...checks };
+    dayIdxs.forEach(idx => { newChk[idx] = false; });
+    setChecks(newChk);
+    setDone(p => { const c={...p}; delete c[active]; return c; });
+  }
+
+  if (items.length === 0) {
+    return (
+      <div style={S.root}>
+        <style>{css}</style>
+        <div style={{ ...S.header, background: role.grad }}>
+          <button onClick={onBack} style={S.backBtn} className="back-btn">&#8592; Back</button>
+          <div style={S.brand}><div style={S.brandName}>Weekly Checklist</div><div style={S.brandSub}>{role.label}</div></div>
+        </div>
+        <div style={ST.emptyState}><div style={ST.emptyIcon}>&#128197;</div><div style={ST.emptyTitle}>No weekly tasks yet</div><div style={ST.emptySub}>Weekly tasks for this role are coming soon.</div></div>
+      </div>
+    );
+  }
+
+  return (
+    <div style={S.root}>
+      <style>{css}</style>
+      {toast && <div style={S.toast}>{toast} -- Photo to Slack</div>}
+      <div style={{ ...S.header, background: role.grad }}>
+        <button onClick={onBack} style={S.backBtn} className="back-btn">&#8592; Back</button>
+        <div style={S.brand}><div style={S.brandName}>Weekly Checklist</div><div style={S.brandSub}>{role.label}</div></div>
+        <div style={S.dateChip}>{new Date().toLocaleDateString("en-US",{weekday:"short",month:"short",day:"numeric"})}</div>
+      </div>
+      <div style={S.nameBar}>
+        <span style={S.nameIcon}>\uD83D\uDC64</span>
+        <input style={{ ...S.nameInput, borderColor: nameErr ? "#EF4444" : "#E2E8F0" }}
+          placeholder="Your name (required to complete)"
+          value={name} onChange={e => { setName(e.target.value); if(e.target.value) setNameErr(false); }} />
+        {nameErr && <span style={S.nameErr}>Enter your name first</span>}
+      </div>
+      <div style={S.tabs}>
+        {WEEKDAYS.map(day => {
+          const dIdxs = getDayIdxs(day);
+          const dChk  = dIdxs.filter(idx => checks[idx] === true).length;
+          const isDone = !!done[day];
+          const isAct  = active === day;
+          const isToday = day === todayDay;
+          return (
+            <button key={day} onClick={() => setActive(day)}
+              style={{...S.tab,...(isAct?{...S.tabActive,borderColor:role.color,color:role.color}:{})}}
+              className="tab-btn">
+              <span style={{ fontSize:9, letterSpacing:"0.06em", fontWeight:700 }}>{isToday ? "TODAY" : WEEKDAY_SHORT[day].toUpperCase()}</span>
+              {dIdxs.length > 0 && (
+                <span style={{...S.badge, background:isDone?"#22c55e":isAct?role.color:"#E2E8F0", color:isDone||isAct?"#fff":"#94A3B8"}}>
+                  {isDone ? "\u2713" : dChk+"/"+dIdxs.length}
+                </span>
+              )}
+            </button>
+          );
+        })}
+      </div>
+      <div style={S.content}>
+        {total === 0 ? (
+          <div style={ST.emptyDay}>
+            <div style={{ fontSize:28, marginBottom:10 }}>\uD83C\uDF89</div>
+            <div style={{ fontSize:14, fontWeight:700, color:"#1E293B", marginBottom:4 }}>Nothing on {WEEKDAY_FULL[active]}</div>
+            <div style={{ fontSize:12, color:"#94A3B8" }}>No tasks assigned to this day. Adjust in Manage Schedule.</div>
+          </div>
+        ) : (
+          <>
+            <div style={S.progWrap}>
+              <div style={S.progHead}>
+                <span style={{...S.progLabel,color:role.color}}>{WEEKDAY_FULL[active]} Tasks</span>
+                <span style={S.progPct}>{pct}%</span>
+              </div>
+              <div style={S.track}><div style={{...S.fill,width:pct+"%",background:role.color}}/></div>
+              <div style={S.progMeta}>
+                <span style={S.progCount}>{checked} of {total} tasks complete</span>
+                {done[active] && <span style={{...S.progCount,color:"#22c55e",fontWeight:600}}>&#10003; {done[active].name} &mdash; {done[active].at}</span>}
+              </div>
+            </div>
+            <div style={S.card}>
+              <div style={{ ...S.items, paddingTop:12 }}>
+                {dayIdxs.map(idx => {
+                  const isChk = checks[idx] === true;
+                  return (
+                    <div key={idx} style={{...S.item,...(isChk?S.itemDone:{})}}>
+                      <button style={{...S.box,background:isChk?role.color:"#fff",borderColor:isChk?role.color:"#CBD5E1",cursor:"pointer"}}
+                        onClick={() => toggle(idx)} className="item-btn">
+                        {isChk && <span style={S.tick}>{"\u2713"}</span>}
+                      </button>
+                      <span style={{...S.itemTxt,...(isChk?S.itemTxtDone:{})}} onClick={() => toggle(idx)} className="item-btn">
+                        {items[idx].text}
+                      </span>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+            <div style={S.footer}>
+              {done[active] ? (
+                <div style={S.doneBanner}>
+                  <span>&#10003; Completed by {done[active].name} at {done[active].at}</span>
+                  <div style={{display:"flex",gap:8,alignItems:"center"}}>
+                    <a href={SLACK_URL} target="_blank" rel="noreferrer" style={S.slackBtn}>&#128247; Post to Slack</a>
+                    <button onClick={reset} style={S.resetBtn}>Reset</button>
+                  </div>
+                </div>
+              ) : (
+                <button onClick={markDone} disabled={!allDone}
+                  style={{...S.completeBtn,background:allDone?role.color:"#E2E8F0",color:allDone?"#fff":"#94A3B8",cursor:allDone?"pointer":"not-allowed",boxShadow:allDone?"0 4px 20px "+role.color+"44":"none"}}>
+                  {allDone ? "Mark "+WEEKDAY_FULL[active]+" Complete -- Photo to Slack" : checked+" of "+total+" tasks complete"}
+                </button>
+              )}
+            </div>
+          </>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// ── MONTHLY CHECKLIST ─────────────────────────────────────────────────────────
+function MonthlyChecklist({ roleKey, onBack }) {
+  const role  = ROLES[roleKey];
+  const items = MONTHLY_DATA[roleKey] || [];
+  const [settings] = useState(loadSettings());
+  const saved = loadMonthly(roleKey);
+  const [checks, setChecks] = useState(saved.checks || {});
+  const [done, setDone]     = useState(saved.done || null);
+  const [name, setName]     = useState(saved.name || "");
+  const [nameErr, setNameErr] = useState(false);
+  const [toast, setToast]   = useState(null);
+
+  const rec = getMonthlyRecurrence(roleKey, settings);
+  const dueDate = calcMonthlyDate(rec.week, rec.day);
+  const dueLabel = fmtMonthlyDate(dueDate);
+
+  useEffect(() => { saveMonthly(roleKey, { name, checks, done }); }, [name, checks, done]);
+
+  const total   = items.length;
+  const checked = Object.values(checks).filter(v => v === true).length;
+  const pct     = total ? Math.round(checked/total*100) : 0;
+  const allDone = total > 0 && checked === total;
+
+  function toggle(idx) { setChecks(p => ({ ...p, [idx]: !p[idx] })); }
+  function markDone() {
+    if (!name.trim()) { setNameErr(true); return; }
+    setNameErr(false);
+    const now = new Date().toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"});
+    const today = new Date().toLocaleDateString("en-US",{weekday:"long",month:"long",day:"numeric"});
+    setDone({ name: name.trim(), at: now });
+    setToast("Monthly tasks complete!");
+    setTimeout(() => setToast(null), 4000);
+    setTimeout(() => window.open(SLACK_URL, "_blank"), 400);
+    postSlack("\u2705 *" + name.trim() + "* completed *" + role.label + " -- Monthly Tasks* at " + now + " on " + today);
+  }
+  function reset() { setChecks({}); setDone(null); }
+
+  if (items.length === 0) {
+    return (
+      <div style={S.root}>
+        <style>{css}</style>
+        <div style={{ ...S.header, background: role.grad }}>
+          <button onClick={onBack} style={S.backBtn} className="back-btn">&#8592; Back</button>
+          <div style={S.brand}><div style={S.brandName}>Monthly Checklist</div><div style={S.brandSub}>{role.label}</div></div>
+        </div>
+        <div style={ST.emptyState}><div style={ST.emptyIcon}>&#128336;</div><div style={ST.emptyTitle}>No monthly tasks yet</div><div style={ST.emptySub}>Monthly tasks for this role are coming soon.</div></div>
+      </div>
+    );
+  }
+
+  return (
+    <div style={S.root}>
+      <style>{css}</style>
+      {toast && <div style={S.toast}>{toast} -- Photo to Slack</div>}
+      <div style={{ ...S.header, background: role.grad }}>
+        <button onClick={onBack} style={S.backBtn} className="back-btn">&#8592; Back</button>
+        <div style={S.brand}><div style={S.brandName}>Monthly Checklist</div><div style={S.brandSub}>{role.label}</div></div>
+        <div style={S.dateChip}>{new Date().toLocaleDateString("en-US",{weekday:"short",month:"short",day:"numeric"})}</div>
+      </div>
+      <div style={S.nameBar}>
+        <span style={S.nameIcon}>\uD83D\uDC64</span>
+        <input style={{ ...S.nameInput, borderColor: nameErr ? "#EF4444" : "#E2E8F0" }}
+          placeholder="Your name (required to complete)"
+          value={name} onChange={e => { setName(e.target.value); if(e.target.value) setNameErr(false); }} />
+        {nameErr && <span style={S.nameErr}>Enter your name first</span>}
+      </div>
+      <div style={{ padding:"14px 14px 0" }}>
+        <div style={ST.dueBanner}>
+          <span style={{ fontSize:18 }}>&#128336;</span>
+          <div>
+            <div style={ST.dueLabel}>{ordinal(rec.week)} {rec.day.charAt(0).toUpperCase()+rec.day.slice(1)} of each month</div>
+            <div style={ST.dueDate}>{dueLabel}</div>
+          </div>
+        </div>
+      </div>
+      <div style={S.content}>
+        <div style={S.progWrap}>
+          <div style={S.progHead}>
+            <span style={{...S.progLabel,color:"#7C3AED"}}>Monthly Tasks</span>
+            <span style={S.progPct}>{pct}%</span>
+          </div>
+          <div style={S.track}><div style={{...S.fill,width:pct+"%",background:"#7C3AED"}}/></div>
+          <div style={S.progMeta}>
+            <span style={S.progCount}>{checked} of {total} tasks complete</span>
+            {done && <span style={{...S.progCount,color:"#22c55e",fontWeight:600}}>&#10003; {done.name} &mdash; {done.at}</span>}
+          </div>
+        </div>
+        <div style={S.card}>
+          <div style={{ ...S.items, paddingTop:12 }}>
+            {items.map((item, idx) => {
+              const isChk = checks[idx] === true;
+              return (
+                <div key={idx} style={{...S.item,...(isChk?S.itemDone:{})}}>
+                  <button style={{...S.box,background:isChk?"#7C3AED":"#fff",borderColor:isChk?"#7C3AED":"#CBD5E1",cursor:"pointer"}}
+                    onClick={() => toggle(idx)} className="item-btn">
+                    {isChk && <span style={S.tick}>{"\u2713"}</span>}
+                  </button>
+                  <span style={{...S.itemTxt,...(isChk?S.itemTxtDone:{})}} onClick={() => toggle(idx)} className="item-btn">{item.text}</span>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+        <div style={S.footer}>
+          {done ? (
+            <div style={S.doneBanner}>
+              <span>&#10003; Completed by {done.name} at {done.at}</span>
+              <div style={{display:"flex",gap:8,alignItems:"center"}}>
+                <a href={SLACK_URL} target="_blank" rel="noreferrer" style={S.slackBtn}>&#128247; Post to Slack</a>
+                <button onClick={reset} style={S.resetBtn}>Reset</button>
+              </div>
+            </div>
+          ) : (
+            <button onClick={markDone} disabled={!allDone}
+              style={{...S.completeBtn,background:allDone?"#7C3AED":"#E2E8F0",color:allDone?"#fff":"#94A3B8",cursor:allDone?"pointer":"not-allowed",boxShadow:allDone?"0 4px 20px #7C3AED44":"none"}}>
+              {allDone ? "Mark Monthly Tasks Complete -- Photo to Slack" : checked+" of "+total+" tasks complete"}
+            </button>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ── FREQUENCY PICKER ──────────────────────────────────────────────────────────
+function FrequencyPicker({ roleKey, onBack, onSelect }) {
+  const role = ROLES[roleKey];
+  const data = role.data;
+  const totalDaily = Object.values(data).reduce((sum, tab) => sum + tab.sections.reduce((s, sec) => s + sec.items.length, 0), 0);
+  const settings = loadSettings();
+  const weeklyItems = WEEKLY_DATA[roleKey] || [];
+  const monthlyItems = MONTHLY_DATA[roleKey] || [];
+  const todayDay = todayDayName();
+  const todayWeeklyCount = WEEKDAYS.includes(todayDay)
+    ? weeklyItems.filter((item, idx) => getItemDay(roleKey, idx, item.defaultDay, settings) === todayDay).length
+    : 0;
+  const rec = getMonthlyRecurrence(roleKey, settings);
+  const monthlyDate = calcMonthlyDate(rec.week, rec.day);
+
+  return (
+    <div style={R.root}>
+      <style>{css}</style>
+      <div style={{ ...S.header, background: role.grad, padding:"20px 20px" }}>
+        <button onClick={onBack} style={S.backBtn} className="back-btn">&#8592; Roles</button>
+        <div style={S.brand}>
+          <div style={S.brandName}>{role.label}</div>
+          <div style={S.brandSub}>Select checklist</div>
+        </div>
+        <div style={S.dateChip}>{new Date().toLocaleDateString("en-US",{weekday:"short",month:"short",day:"numeric"})}</div>
+      </div>
+      <div style={{ padding:"20px 16px 0" }}>
+        <button onClick={() => onSelect("daily")} style={FP.card} className="role-card">
+          <div style={{ ...FP.accent, background: role.color }} />
+          <div style={FP.body}>
+            <div style={{ ...FP.iconBox, background: role.color+"18", color: role.color }}>&#128203;</div>
+            <div style={FP.text}>
+              <div style={FP.label}>Daily Checklist</div>
+              <div style={FP.sub}>Opening &middot; Throughout &middot; Closing</div>
+              <div style={FP.meta}>{totalDaily} total tasks</div>
+            </div>
+            <div style={{ ...FP.arrow, color: role.color }}>&#8594;</div>
+          </div>
+        </button>
+        <button onClick={() => onSelect("weekly")} style={FP.card} className="role-card">
+          <div style={{ ...FP.accent, background: "#3B82F6" }} />
+          <div style={FP.body}>
+            <div style={{ ...FP.iconBox, background: "#EFF6FF", color: "#3B82F6" }}>&#128197;</div>
+            <div style={FP.text}>
+              <div style={FP.label}>Weekly Checklist</div>
+              {weeklyItems.length > 0 ? (
+                <>
+                  <div style={FP.sub}>
+                    {WEEKDAYS.includes(todayDay) && todayWeeklyCount > 0
+                      ? todayWeeklyCount + " task" + (todayWeeklyCount !== 1 ? "s" : "") + " scheduled today"
+                      : "Nothing scheduled today"}
+                  </div>
+                  <div style={FP.meta}>{weeklyItems.length} total weekly tasks</div>
+                </>
+              ) : (
+                <div style={FP.sub}>No weekly tasks configured yet</div>
+              )}
+            </div>
+            <div style={{ ...FP.arrow, color: "#3B82F6" }}>&#8594;</div>
+          </div>
+        </button>
+        <button onClick={() => onSelect("monthly")} style={FP.card} className="role-card">
+          <div style={{ ...FP.accent, background: "#7C3AED" }} />
+          <div style={FP.body}>
+            <div style={{ ...FP.iconBox, background: "#F5F3FF", color: "#7C3AED" }}>&#128336;</div>
+            <div style={FP.text}>
+              <div style={FP.label}>Monthly Checklist</div>
+              {monthlyItems.length > 0 ? (
+                <>
+                  <div style={FP.sub}>{ordinal(rec.week)} {rec.day.charAt(0).toUpperCase()+rec.day.slice(1)} of each month</div>
+                  <div style={FP.meta}>{monthlyDate ? fmtMonthlyDate(monthlyDate) : "Not scheduled this month"}</div>
+                </>
+              ) : (
+                <div style={FP.sub}>No monthly tasks configured yet</div>
+              )}
+            </div>
+            <div style={{ ...FP.arrow, color: "#7C3AED" }}>&#8594;</div>
+          </div>
+        </button>
+        <div style={{ textAlign:"center", padding:"14px 0 4px" }}>
+          <button onClick={() => onSelect("settings")} style={FP.settingsBtn} className="hist-btn">
+            &#9881; Manage Schedule &amp; Days
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ── SETTINGS PANEL ────────────────────────────────────────────────────────────
+function SettingsPanel({ roleKey, onBack }) {
+  const role = ROLES[roleKey];
+  const weeklyItems  = WEEKLY_DATA[roleKey] || [];
+  const monthlyItems = MONTHLY_DATA[roleKey] || [];
+  const [settings, setSettings] = useState(loadSettings());
+  const WEEK_NUMS = [1,2,3,4];
+
+  function setItemDay(idx, day) {
+    const s = { ...settings };
+    if (!s.weeklyDays) s.weeklyDays = {};
+    if (!s.weeklyDays[roleKey]) s.weeklyDays[roleKey] = {};
+    s.weeklyDays[roleKey][idx] = day;
+    setSettings(s); saveSettings(s);
+  }
+  function setMonthly(field, val) {
+    const s = { ...settings };
+    if (!s.monthly) s.monthly = {};
+    if (!s.monthly[roleKey]) s.monthly[roleKey] = { ...DEFAULT_MONTHLY_RECURRENCE[roleKey] };
+    s.monthly[roleKey][field] = val;
+    setSettings(s); saveSettings(s);
+  }
+  const rec = getMonthlyRecurrence(roleKey, settings);
+  const monthlyDate = calcMonthlyDate(rec.week, rec.day);
+
+  return (
+    <div style={S.root}>
+      <style>{css}</style>
+      <div style={{ ...S.header, background: role.grad }}>
+        <button onClick={onBack} style={S.backBtn} className="back-btn">&#8592; Back</button>
+        <div style={S.brand}><div style={S.brandName}>Manage Schedule</div><div style={S.brandSub}>{role.label}</div></div>
+      </div>
+      <div style={S.content}>
+        {weeklyItems.length > 0 && (
+          <div style={ST.section}>
+            <div style={ST.sectionTitle}>Weekly Task Days</div>
+            <div style={ST.sectionSub}>Tap a day to reassign any task. Changes save instantly.</div>
+            {weeklyItems.map((item, idx) => {
+              const currentDay = getItemDay(roleKey, idx, item.defaultDay, settings);
+              return (
+                <div key={idx} style={ST.itemRow}>
+                  <div style={ST.itemText}>{item.text}</div>
+                  <div style={ST.dayBtns}>
+                    {WEEKDAYS.map(d => (
+                      <button key={d} onClick={() => setItemDay(idx, d)} className="day-pick-btn"
+                        style={{ ...ST.dayBtn, background: currentDay===d ? role.color : "#F1F5F9", color: currentDay===d ? "#fff" : "#64748B", borderColor: currentDay===d ? role.color : "#E2E8F0" }}>
+                        {WEEKDAY_SHORT[d]}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
+        {monthlyItems.length > 0 && (
+          <div style={ST.section}>
+            <div style={ST.sectionTitle}>Monthly Recurrence</div>
+            <div style={ST.sectionSub}>Pick which day of the month monthly tasks fall on.</div>
+            <div style={ST.monthPreview}>
+              {monthlyDate ? fmtMonthlyDate(monthlyDate) : "Not scheduled this month"}
+            </div>
+            <div style={ST.recLabel}>Occurs on the:</div>
+            <div style={ST.dayBtns}>
+              {WEEK_NUMS.map(n => (
+                <button key={n} onClick={() => setMonthly("week", n)} className="day-pick-btn"
+                  style={{ ...ST.weekBtn, background: rec.week===n ? "#7C3AED" : "#F1F5F9", color: rec.week===n ? "#fff" : "#64748B", borderColor: rec.week===n ? "#7C3AED" : "#E2E8F0" }}>
+                  {ordinal(n)}
+                </button>
+              ))}
+            </div>
+            <div style={ST.recLabel}>Day of week:</div>
+            <div style={ST.dayBtns}>
+              {WEEKDAYS.map(d => (
+                <button key={d} onClick={() => setMonthly("day", d)} className="day-pick-btn"
+                  style={{ ...ST.dayBtn, background: rec.day===d ? "#7C3AED" : "#F1F5F9", color: rec.day===d ? "#fff" : "#64748B", borderColor: rec.day===d ? "#7C3AED" : "#E2E8F0" }}>
+                  {WEEKDAY_SHORT[d]}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+        {weeklyItems.length === 0 && monthlyItems.length === 0 && (
+          <div style={ST.emptyState}><div style={ST.emptyIcon}>&#9881;</div><div style={ST.emptyTitle}>Nothing to configure yet</div><div style={ST.emptySub}>Periodic checklists for this role are coming soon.</div></div>
+        )}
+      </div>
+    </div>
+  );
+}
+
 // ── HISTORY VIEW ──────────────────────────────────────────────────────────────
 function HistoryView({ onBack }) {
-  const [detail, setDetail] = useState(null); // { dateKey, roleKey, tabKey }
-
-  // Build history from localStorage
+  const [detail, setDetail] = useState(null);
   const days = [];
   const dateMap = {};
   allDayKeys().forEach(k => {
-    // key format: ss_YYYY-MM-DD_rolekey
     const parts = k.replace("ss_","").split("_");
     const dateKey = parts[0];
     const roleKey = parts[1];
@@ -632,8 +1181,7 @@ function HistoryView({ onBack }) {
           <div style={{...H.statusBanner, background: doneEntry?"#DCFCE7":"#FEF3C7", borderColor: doneEntry?"#86EFAC":"#FCD34D", color: doneEntry?"#15803D":"#92400E"}}>
             {doneEntry
               ? <span>&#10003; Completed by <strong>{doneEntry.name}</strong> at {doneEntry.at} &mdash; {checkedCount}/{totalItems} items</span>
-              : <span>&#9888; Not completed &mdash; {checkedCount}/{totalItems} items checked</span>
-            }
+              : <span>&#9888; Not completed &mdash; {checkedCount}/{totalItems} items checked</span>}
           </div>
           {tabData.sections.map((sec,si) => (
             <div key={si} style={H.section}>
@@ -641,9 +1189,7 @@ function HistoryView({ onBack }) {
               {sec.items.map((item,ii) => {
                 const raw = itemText(item);
                 const val = checks[si+"-"+ii];
-                const isChk = val === true;
-                const isNa = val === "na";
-                const isDone = isChk || isNa;
+                const isChk = val === true; const isNa = val === "na"; const isDone = isChk || isNa;
                 return (
                   <div key={ii} style={{...H.histItem, background:isChk?"#F0FDF4":isNa?"#F8FAFC":"#FFF5F5"}}>
                     <span style={{...H.histBox, background:isChk?"#22c55e":isNa?"#94A3B8":"#FCA5A5", color:"#fff"}}>{isChk?"\u2713":isNa?"N/A":"\u2715"}</span>
@@ -658,7 +1204,6 @@ function HistoryView({ onBack }) {
     );
   }
 
-  // List view
   return (
     <div style={H.root}>
       <style>{css}</style>
@@ -695,19 +1240,11 @@ function HistoryView({ onBack }) {
                         const chkd = Object.values(checks).filter(v => v === true || v === "na").length;
                         const started = chkd > 0;
                         return (
-                          <button key={tabKey}
-                            onClick={()=>setDetail({dateKey,roleKey,tabKey})}
-                            style={{...H.tabChip,
-                              background: entry?"#DCFCE7": started?"#FEF3C7":"#F1F5F9",
-                              borderColor: entry?"#86EFAC": started?"#FCD34D":"#E2E8F0",
-                              color: entry?"#15803D": started?"#92400E":"#94A3B8"
-                            }} className="chip-btn">
+                          <button key={tabKey} onClick={()=>setDetail({dateKey,roleKey,tabKey})}
+                            style={{...H.tabChip, background: entry?"#DCFCE7": started?"#FEF3C7":"#F1F5F9", borderColor: entry?"#86EFAC": started?"#FCD34D":"#E2E8F0", color: entry?"#15803D": started?"#92400E":"#94A3B8"}} className="chip-btn">
                             <span>{entry?"\u2713":started?"...":"\u2013"}</span>
                             <span>{tab.label}</span>
-                            {entry
-                              ? <span style={H.chipMeta}>{entry.name} {entry.at}</span>
-                              : started ? <span style={H.chipMeta}>{chkd}/{total}</span> : null
-                            }
+                            {entry ? <span style={H.chipMeta}>{entry.name} {entry.at}</span> : started ? <span style={H.chipMeta}>{chkd}/{total}</span> : null}
                           </button>
                         );
                       })}
@@ -728,12 +1265,12 @@ function RoleSelector({ onSelect, onHistory }) {
   return (
     <div style={R.root}>
       <style>{css}</style>
-    <div style={R.hero}>
-<div style={R.teamPhotoContainer}>
-  <img src="Seaport-Smiles-team.jpg" alt="Seaport Smiles Team" style={R.teamPhoto} />
-</div>
+      <div style={R.hero}>
+        <div style={R.teamPhotoContainer}>
+          <img src="Seaport-Smiles-team.jpg" alt="Seaport Smiles Team" style={R.teamPhoto} />
+        </div>
         <h1 style={R.title}>Seaport Smiles</h1>
-        <p style={R.sub}>Select your role to begin today&apos;s checklist</p>
+        <p style={R.sub}>Select your role to begin</p>
         <div style={R.date}>{todayStr()}</div>
       </div>
       <div style={R.cards}>
@@ -761,9 +1298,9 @@ function RoleSelector({ onSelect, onHistory }) {
                 </div>
               </div>
               <div style={R.pills}>
-                {Object.values(role.data).map((tab,i) => (
-                  <span key={i} style={{...R.pill, background:role.color+"15", color:role.color}}>{tab.icon} {tab.label}</span>
-                ))}
+                <span style={{...R.pill, background:role.color+"15", color:role.color}}>&#128203; Daily</span>
+                {(WEEKLY_DATA[key]||[]).length > 0 && <span style={{...R.pill, background:"#EFF6FF", color:"#3B82F6"}}>&#128197; Weekly</span>}
+                {(MONTHLY_DATA[key]||[]).length > 0 && <span style={{...R.pill, background:"#F5F3FF", color:"#7C3AED"}}>&#128336; Monthly</span>}
               </div>
             </button>
           );
@@ -781,19 +1318,27 @@ function RoleSelector({ onSelect, onHistory }) {
 function App() {
   const [view, setView] = useState("roles");
   const [role, setRole] = useState(null);
-  if (view === "checklist") return <Checklist roleKey={role} onBack={()=>setView("roles")} />;
-  if (view === "history")   return <HistoryView onBack={()=>setView("roles")} />;
-  return <RoleSelector onSelect={r=>{setRole(r);setView("checklist");}} onHistory={()=>setView("history")} />;
+
+  function selectRole(r) { setRole(r); setView("freq"); }
+  function goFreq() { setView("freq"); }
+  function goRoles() { setView("roles"); }
+
+  if (view === "history")  return <HistoryView onBack={goRoles} />;
+  if (view === "freq")     return <FrequencyPicker roleKey={role} onBack={goRoles} onSelect={setView} />;
+  if (view === "daily")    return <Checklist roleKey={role} onBack={goFreq} />;
+  if (view === "weekly")   return <WeeklyChecklist roleKey={role} onBack={goFreq} />;
+  if (view === "monthly")  return <MonthlyChecklist roleKey={role} onBack={goFreq} />;
+  if (view === "settings") return <SettingsPanel roleKey={role} onBack={goFreq} />;
+  return <RoleSelector onSelect={selectRole} onHistory={()=>setView("history")} />;
 }
 
 // ── STYLES ────────────────────────────────────────────────────────────────────
 const R = {
   root: { fontFamily:"'DM Sans',sans-serif", background:"#F0F4F8", minHeight:"100vh", maxWidth:520, margin:"0 auto", paddingBottom:40 },
   hero: { background:"linear-gradient(160deg,#0B1E30 0%,#1B3A5C 60%,#0B2A3D 100%)", padding:"52px 24px 44px", textAlign:"center" },
-  anchor: { fontSize:42, marginBottom:14, display:"block" },
-  // A thin navy outline to frame the banner area
-teamPhotoContainer: { borderTop: "2px solid #0B1E30", borderBottom: "2px solid #0B1E30", marginBottom: 16, display: "inline-block" },
-teamPhoto: { width: "100%", height: 150, borderRadius: "0", objectFit: "cover", display: "block" },
+  teamPhotoContainer: { borderTop:"2px solid #0B1E30", borderBottom:"2px solid #0B1E30", marginBottom:16, display:"inline-block" },
+  teamPhoto: { width:"100%", height:150, borderRadius:"0", objectFit:"cover", display:"block" },
+  title: { color:"#fff", fontSize:24, fontWeight:900, letterSpacing:"-0.5px", marginBottom:6 },
   sub: { color:"rgba(255,255,255,0.5)", fontSize:14, margin:"0 0 18px" },
   date: { display:"inline-block", background:"rgba(255,255,255,0.08)", color:"rgba(255,255,255,0.6)", fontSize:12, fontWeight:500, padding:"6px 16px", borderRadius:20 },
   cards: { padding:"20px 16px 0", display:"flex", flexDirection:"column", gap:12 },
@@ -841,8 +1386,6 @@ const S = {
   fill: { height:"100%", borderRadius:10, transition:"width 0.4s ease" },
   progMeta: { display:"flex", justifyContent:"space-between", alignItems:"center", marginTop:5 },
   progCount: { fontSize:12, color:"#94A3B8", fontWeight:500 },
-};
-Object.assign(S, {
   card: { background:"#fff", borderRadius:14, marginBottom:10, overflow:"hidden", boxShadow:"0 1px 4px rgba(0,0,0,0.06)" },
   cardHead: { width:"100%", display:"flex", alignItems:"center", justifyContent:"space-between", padding:"12px 15px", background:"none", border:"none", borderLeft:"4px solid", cursor:"pointer", textAlign:"left", fontFamily:"inherit" },
   cardL: { display:"flex", alignItems:"center", gap:10 },
@@ -869,7 +1412,7 @@ Object.assign(S, {
   slackBtn: { background:"#4A154B", color:"#fff", fontSize:12, fontWeight:700, padding:"6px 14px", borderRadius:8, textDecoration:"none", whiteSpace:"nowrap", flexShrink:0 },
   resetBtn: { background:"none", border:"1px solid #86EFAC", color:"#15803D", fontSize:12, fontWeight:600, padding:"4px 12px", borderRadius:8, cursor:"pointer", fontFamily:"inherit" },
   naBtn: { marginLeft:"auto", flexShrink:0, fontSize:10, fontWeight:700, padding:"2px 8px", borderRadius:6, border:"1px solid", cursor:"pointer", fontFamily:"inherit", lineHeight:"1.6", transition:"all 0.15s" },
-});
+};
 
 const H = {
   root: { fontFamily:"'DM Sans',sans-serif", background:"#F0F4F8", minHeight:"100vh", maxWidth:720, margin:"0 auto", paddingBottom:40 },
@@ -895,6 +1438,42 @@ const H = {
   histTxt: { fontSize:13, lineHeight:1.5 },
 };
 
+// -- FREQUENCY PICKER STYLES --
+const FP = {
+  card: { background:"#fff", borderRadius:16, border:"none", cursor:"pointer", textAlign:"left", overflow:"hidden", boxShadow:"0 2px 8px rgba(0,0,0,0.07)", fontFamily:"inherit", padding:0, width:"100%", marginBottom:12, transition:"transform 0.15s,box-shadow 0.15s" },
+  accent: { height:4, width:"100%" },
+  body: { display:"flex", alignItems:"center", gap:14, padding:"16px 18px" },
+  iconBox: { width:46, height:46, borderRadius:12, display:"flex", alignItems:"center", justifyContent:"center", fontSize:22, flexShrink:0 },
+  text: { flex:1 },
+  label: { fontSize:16, fontWeight:800, color:"#1E293B", letterSpacing:"-0.3px" },
+  sub: { fontSize:12, color:"#94A3B8", fontWeight:500, marginTop:2 },
+  meta: { fontSize:11, color:"#64748B", fontWeight:600, marginTop:3 },
+  arrow: { fontSize:20, fontWeight:700, flexShrink:0 },
+  settingsBtn: { background:"none", border:"1px solid #CBD5E1", color:"#64748B", fontSize:13, fontWeight:600, padding:"10px 20px", borderRadius:10, cursor:"pointer", fontFamily:"inherit" },
+};
+
+// -- SETTINGS + SHARED PERIODIC STYLES --
+const ST = {
+  section: { background:"#fff", borderRadius:14, padding:"18px 18px", marginBottom:12, boxShadow:"0 1px 4px rgba(0,0,0,0.06)" },
+  sectionTitle: { fontSize:14, fontWeight:800, color:"#1E293B", marginBottom:3 },
+  sectionSub: { fontSize:12, color:"#94A3B8", marginBottom:16 },
+  itemRow: { borderTop:"1px solid #F1F5F9", padding:"12px 0", display:"flex", flexDirection:"column", gap:8 },
+  itemText: { fontSize:13, color:"#374151", lineHeight:1.5 },
+  dayBtns: { display:"flex", gap:6, flexWrap:"wrap" },
+  dayBtn: { padding:"6px 14px", borderRadius:8, border:"1px solid", fontSize:11, fontWeight:700, cursor:"pointer", fontFamily:"inherit", transition:"all 0.15s", minHeight:34 },
+  weekBtn: { padding:"6px 16px", borderRadius:8, border:"1px solid", fontSize:11, fontWeight:700, cursor:"pointer", fontFamily:"inherit", transition:"all 0.15s", minHeight:34 },
+  recLabel: { fontSize:12, fontWeight:600, color:"#64748B", marginTop:12, marginBottom:6 },
+  monthPreview: { background:"#F8FAFC", border:"1px solid #E2E8F0", borderRadius:10, padding:"12px 16px", fontSize:13, fontWeight:600, color:"#1E293B", marginBottom:14, textAlign:"center" },
+  dueBanner: { background:"#F5F3FF", border:"1px solid #DDD6FE", borderRadius:10, padding:"12px 16px", marginBottom:4, display:"flex", alignItems:"center", gap:10 },
+  dueLabel: { fontSize:11, fontWeight:700, color:"#6D28D9", textTransform:"uppercase", letterSpacing:"0.05em" },
+  dueDate: { fontSize:13, color:"#374151", fontWeight:500, marginTop:2 },
+  emptyDay: { background:"#fff", borderRadius:14, padding:"48px 24px", textAlign:"center", boxShadow:"0 1px 4px rgba(0,0,0,0.06)", marginBottom:12 },
+  emptyState: { padding:"60px 24px", textAlign:"center" },
+  emptyIcon: { fontSize:36, marginBottom:12 },
+  emptyTitle: { fontSize:16, fontWeight:700, color:"#1E293B", marginBottom:6 },
+  emptySub: { fontSize:13, color:"#94A3B8" },
+};
+
 const css = `
   @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800;900&display=swap');
   * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -909,12 +1488,13 @@ const css = `
   .na-btn:hover { background: #E2E8F0 !important; color: #475569 !important; border-color: #94A3B8 !important; }
   .counter-btn:hover { background: #F1F5F9 !important; }
   .chip-btn:hover { filter: brightness(0.95); }
+  .day-pick-btn:hover { filter: brightness(0.92); }
   input:focus { outline: 2px solid #3B82F6 !important; border-color: #3B82F6 !important; }
   ::-webkit-scrollbar { width: 4px; height: 4px; }
   ::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 4px; }
 `;
 
 ReactDOM.createRoot(document.getElementById("root")).render(<App />);
-  </script>
+</script>
 </body>
 </html>
