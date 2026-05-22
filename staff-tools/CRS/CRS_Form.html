@@ -1420,12 +1420,21 @@ function copyLink(){
 }
 
 // ─── OPEN RECEIPT IN NEW TAB ─────────────────────────────────────────────
-function openReceipt(data) {
+async function openReceipt(data) {
   try {
     const encoded = btoa(unescape(encodeURIComponent(JSON.stringify(data))));
-    window.open('CRS_Receipt.html#' + encoded, '_blank');
+    const fullUrl = new URL('CRS_Receipt.html', window.location.href).href + '#' + encoded;
+    window.open(fullUrl, '_blank');
+    // Shorten via is.gd (free, CORS-enabled, no key required)
+    try {
+      const r = await fetch('https://is.gd/create.php?format=json&url=' + encodeURIComponent(fullUrl));
+      const j = await r.json();
+      if (j.shorturl) {
+        navigator.clipboard.writeText(j.shorturl).catch(() => {});
+        showToast('\uD83D\uDCCB ' + j.shorturl + ' \u2014 copied!');
+      }
+    } catch(e) { /* shortening failed silently — receipt already opened */ }
   } catch(e) {
-    // fallback: render inline as blob if receipt file not found
     const blob = new Blob([generateReceiptHTML(data)], { type: 'text/html' });
     window.open(URL.createObjectURL(blob), '_blank');
   }
