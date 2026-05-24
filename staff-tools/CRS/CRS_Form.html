@@ -499,7 +499,6 @@
     </div>
 
     <!-- ═══ SECTION 3.1: FAKE IPR LOCATIONS ═══ -->
-    <!-- INSERT immediately after Section 3 closing </div></div></div> and before the Section 4 comment -->
     <div class="section" id="fakeIPRSection">
       <div class="section-header" onclick="toggleSection(this)">
         <span class="badge" style="background:#e07b7b">3.1</span>
@@ -509,185 +508,226 @@
       <div class="section-body">
         <style>
           .ipr-legend { display:flex; gap:16px; font-size:11px; color:#64748b; margin-bottom:14px; align-items:center; flex-wrap:wrap; }
-          .ipr-legend-item { display:flex; align-items:center; gap:5px; }
-          .ipr-legend-cb { width:12px; height:12px; accent-color:#e07b7b; }
+          .ipr-legend-item { display:flex; align-items:center; gap:6px; }
+          .leg-dot { width:13px; height:13px; border-radius:50%; border:2px solid #aaa; flex-shrink:0; }
+          .leg-dot.fake { background:#e07b7b; border-color:#e07b7b; }
+          .leg-dot.real { background:#3a9e6e; border-color:#3a9e6e; }
+          .leg-tooth { width:14px; height:18px; border-radius:3px; border:1.5px solid #aab4c4; flex-shrink:0; }
+          .leg-tooth.crown { background:#f5c842; border-color:#c89e00; }
+          .leg-tooth.implant { background:#7eafd4; border-color:#3b6fa0; }
+          .leg-tooth.absent { background:#f4f7fa; border-color:#ccc; opacity:0.5; }
           .ipr-arch-label { font-size:11px; font-weight:700; text-transform:uppercase; color:#3b6fa0; letter-spacing:0.5px; margin-bottom:8px; }
           .ipr-arch-wrap { display:flex; flex-direction:column; gap:28px; }
           .ipr-arch-section { margin-bottom:4px; }
           .ipr-arch-row { display:flex; align-items:flex-end; justify-content:center; }
-          .ipr-tooth-block { display:flex; flex-direction:column; align-items:center; gap:3px; cursor:pointer; position:relative; flex-shrink:0; }
+          .ipr-tooth-block { display:flex; flex-direction:column; align-items:center; gap:3px; cursor:pointer; position:relative; flex-shrink:0; user-select:none; }
           .ipr-tooth-svg-wrap { position:relative; width:26px; height:34px; }
-          .ipr-tooth-svg-wrap svg { display:block; transition:opacity 0.15s; }
-          .ipr-absent-x { display:none; position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); font-size:13px; font-weight:700; color:#c0392b; pointer-events:none; line-height:1; }
-          .ipr-tooth-block.absent .ipr-tooth-svg-wrap svg { opacity:0.25; }
-          .ipr-tooth-block.absent .ipr-absent-x { display:block; }
+          .ipr-tooth-svg-wrap svg { display:block; transition:all 0.15s; }
+          .ipr-tooth-overlay { display:none; position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); font-size:11px; font-weight:800; line-height:1; pointer-events:none; }
           .ipr-tooth-num { font-size:9px; font-weight:700; color:#64748b; min-width:26px; text-align:center; transition:color 0.15s; }
-          .ipr-tooth-block.absent .ipr-tooth-num { color:#c0392b; }
-          .ipr-tooth-block:hover .ipr-tooth-svg-wrap svg { opacity:0.75; }
-          .ipr-contact-block { display:flex; flex-direction:column; align-items:center; justify-content:flex-end; padding-bottom:5px; flex-shrink:0; width:14px; }
-          .ipr-contact-cb { width:13px; height:13px; cursor:pointer; accent-color:#e07b7b; }
+          .ipr-tooth-block[data-state="absent"] .ipr-tooth-svg-wrap svg { opacity:0.22; }
+          .ipr-tooth-block[data-state="absent"] .ipr-tooth-overlay { display:block; color:#c0392b; font-size:13px; }
+          .ipr-tooth-block[data-state="absent"] .ipr-tooth-num { color:#c0392b; }
+          .ipr-tooth-block[data-state="crown"] .ipr-tooth-svg-wrap svg path { fill:#fff9db; stroke:#c89e00; }
+          .ipr-tooth-block[data-state="crown"] .ipr-tooth-overlay { display:block; color:#b8860b; font-size:9px; font-weight:900; letter-spacing:-0.5px; }
+          .ipr-tooth-block[data-state="crown"] .ipr-tooth-num { color:#b8860b; }
+          .ipr-tooth-block[data-state="implant"] .ipr-tooth-svg-wrap svg path { fill:#ddeef9; stroke:#3b6fa0; }
+          .ipr-tooth-block[data-state="implant"] .ipr-tooth-overlay { display:block; color:#1e3a5f; font-size:9px; font-weight:900; letter-spacing:-0.5px; }
+          .ipr-tooth-block[data-state="implant"] .ipr-tooth-num { color:#1e4080; }
+          .ipr-tooth-block:hover .ipr-tooth-svg-wrap svg { opacity:0.72; }
+          .ipr-tooth-block[data-state="absent"]:hover .ipr-tooth-svg-wrap svg { opacity:0.35; }
+          .ipr-contact-block { display:flex; flex-direction:column; align-items:center; justify-content:flex-end; padding-bottom:6px; flex-shrink:0; width:16px; cursor:pointer; user-select:none; }
+          .ipr-contact-dot { width:13px; height:13px; border-radius:50%; border:2px solid #ccc; background:transparent; display:flex; align-items:center; justify-content:center; font-size:9px; font-weight:900; color:transparent; transition:all 0.15s; }
+          .ipr-contact-block[data-state="fake"] .ipr-contact-dot { background:#e07b7b; border-color:#c0392b; color:#fff; }
+          .ipr-contact-block[data-state="real"] .ipr-contact-dot { background:#3a9e6e; border-color:#1e7a4e; color:#fff; }
+          .ipr-contact-block:hover .ipr-contact-dot { border-color:#999; }
           .ipr-side-labels { display:flex; justify-content:space-between; font-size:9px; font-weight:700; color:#64748b; margin-top:4px; }
-          .ipr-summary-area { margin-top:8px; min-height:24px; }
-          .ipr-chip-row { display:flex; justify-content:space-between; gap:8px; min-height:26px; }
-          .ipr-chip-col-right { display:flex; flex-wrap:wrap; gap:4px; justify-content:flex-start; flex:1; }
-          .ipr-chip-col-center { display:flex; flex-wrap:wrap; gap:4px; justify-content:center; flex-shrink:0; }
-          .ipr-chip-col-left { display:flex; flex-wrap:wrap; gap:4px; justify-content:flex-end; flex:1; }
-          .ipr-chip { background:#fde8e8; border:1.5px solid #e07b7b; color:#9b2a2a; border-radius:12px; padding:2px 8px; font-size:11px; font-weight:600; white-space:nowrap; }
-          .ipr-chip.absent-chip { background:#f5f5f5; border-color:#aaa; color:#555; }
-          .ipr-absent-row { display:flex; flex-wrap:wrap; gap:4px; margin-top:6px; }
+          .ipr-summary-area { margin-top:10px; }
+          .ipr-summary-row { display:flex; align-items:flex-start; gap:8px; min-height:24px; margin-bottom:4px; }
+          .ipr-summary-label { font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:0.4px; white-space:nowrap; padding-top:3px; flex-shrink:0; width:58px; }
+          .ipr-summary-label.fake { color:#9b2a2a; }
+          .ipr-summary-label.real { color:#155235; }
+          .ipr-summary-label.misc { color:#555; }
+          .ipr-chip-group { display:flex; flex-wrap:wrap; gap:4px; }
+          .ipr-chip { border-radius:12px; padding:2px 8px; font-size:11px; font-weight:600; white-space:nowrap; }
+          .ipr-chip.fake    { background:#fde8e8; border:1.5px solid #e07b7b; color:#9b2a2a; }
+          .ipr-chip.real    { background:#e6f7ef; border:1.5px solid #3a9e6e; color:#155235; }
+          .ipr-chip.crown   { background:#fff9db; border:1.5px solid #c89e00; color:#7a5a00; }
+          .ipr-chip.implant { background:#ddeef9; border:1.5px solid #3b6fa0; color:#1e3a5f; }
+          .ipr-chip.absent  { background:#f5f5f5; border:1.5px solid #aaa; color:#555; }
         </style>
         <div class="ipr-legend">
-          <div class="ipr-legend-item"><input type="checkbox" class="ipr-legend-cb" checked disabled> Check contact = fake IPR present</div>
-          <div class="ipr-legend-item" style="color:#c0392b;font-weight:600;">Click tooth = mark absent</div>
+          <div class="ipr-legend-item"><div class="leg-dot"></div> None</div>
+          <div class="ipr-legend-item"><div class="leg-dot fake"></div> Fake IPR (1 click)</div>
+          <div class="ipr-legend-item"><div class="leg-dot real"></div> Real IPR (2 clicks)</div>
+          <div style="width:1px;background:#ddd;height:14px;margin:0 4px"></div>
+          <div class="ipr-legend-item"><div class="leg-tooth absent"></div> Absent (1 click)</div>
+          <div class="ipr-legend-item"><div class="leg-tooth crown"></div> Crown (2 clicks)</div>
+          <div class="ipr-legend-item"><div class="leg-tooth implant"></div> Implant (3 clicks)</div>
+          <div class="ipr-legend-item" style="color:#888;font-style:italic">4 clicks resets tooth</div>
         </div>
         <div class="ipr-arch-wrap">
-          <!-- UPPER ARCH -->
           <div class="ipr-arch-section">
             <div class="ipr-arch-label">Upper arch (maxillary)</div>
             <div class="ipr-arch-row" id="ipr-upper-arch"></div>
             <div class="ipr-side-labels"><span>RIGHT</span><span>LEFT</span></div>
             <div class="ipr-summary-area">
-              <div class="ipr-chip-row">
-                <div class="ipr-chip-col-right" id="ipr-upper-chips-right"></div>
-                <div class="ipr-chip-col-center" id="ipr-upper-chips-mid"></div>
-                <div class="ipr-chip-col-left" id="ipr-upper-chips-left"></div>
+              <div class="ipr-summary-row">
+                <span class="ipr-summary-label fake">Fake IPR</span>
+                <div class="ipr-chip-group" id="ipr-upper-chips-fake"></div>
               </div>
-              <div class="ipr-absent-row" id="ipr-upper-absent"></div>
+              <div class="ipr-summary-row">
+                <span class="ipr-summary-label real">Real IPR</span>
+                <div class="ipr-chip-group" id="ipr-upper-chips-real"></div>
+              </div>
+              <div class="ipr-summary-row">
+                <span class="ipr-summary-label misc">Teeth</span>
+                <div class="ipr-chip-group" id="ipr-upper-misc"></div>
+              </div>
             </div>
           </div>
-          <!-- LOWER ARCH -->
           <div class="ipr-arch-section">
             <div class="ipr-arch-label">Lower arch (mandibular)</div>
             <div class="ipr-arch-row" id="ipr-lower-arch"></div>
             <div class="ipr-side-labels"><span>RIGHT</span><span>LEFT</span></div>
             <div class="ipr-summary-area">
-              <div class="ipr-chip-row">
-                <div class="ipr-chip-col-right" id="ipr-lower-chips-right"></div>
-                <div class="ipr-chip-col-center" id="ipr-lower-chips-mid"></div>
-                <div class="ipr-chip-col-left" id="ipr-lower-chips-left"></div>
+              <div class="ipr-summary-row">
+                <span class="ipr-summary-label fake">Fake IPR</span>
+                <div class="ipr-chip-group" id="ipr-lower-chips-fake"></div>
               </div>
-              <div class="ipr-absent-row" id="ipr-lower-absent"></div>
+              <div class="ipr-summary-row">
+                <span class="ipr-summary-label real">Real IPR</span>
+                <div class="ipr-chip-group" id="ipr-lower-chips-real"></div>
+              </div>
+              <div class="ipr-summary-row">
+                <span class="ipr-summary-label misc">Teeth</span>
+                <div class="ipr-chip-group" id="ipr-lower-misc"></div>
+              </div>
             </div>
           </div>
         </div>
-        <!-- Hidden inputs for form submission -->
-        <input type="hidden" id="ipr-upper-hidden" name="entry.fakeIPR_upper">
-        <input type="hidden" id="ipr-lower-hidden" name="entry.fakeIPR_lower">
-        <input type="hidden" id="ipr-absent-hidden" name="entry.fakeIPR_absent">
+        <input type="hidden" id="ipr-upper-contacts" name="entry.fakeIPR_upper">
+        <input type="hidden" id="ipr-lower-contacts" name="entry.fakeIPR_lower">
+        <input type="hidden" id="ipr-upper-tooth-states" name="entry.fakeIPR_upper_teeth">
+        <input type="hidden" id="ipr-lower-tooth-states" name="entry.fakeIPR_lower_teeth">
       </div>
     </div>
     <script>
-    (function() {
+    (function () {
+      const TOOTH_STATES   = ['normal', 'absent', 'crown', 'implant'];
+      const CONTACT_STATES = ['none', 'fake', 'real'];
       function upperSVG() {
         return '<svg width="26" height="34" viewBox="0 0 26 34" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3 32 C3 32 1.5 26 1.5 18 C1.5 8 5.5 3 13 3 C20.5 3 24.5 8 24.5 18 C24.5 26 23 32 23 32" stroke="#aab4c4" stroke-width="1.6" fill="#f8fafc" stroke-linecap="round" stroke-linejoin="round"/></svg>';
       }
       function lowerSVG() {
         return '<svg width="26" height="34" viewBox="0 0 26 34" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3 2 C3 2 1.5 8 1.5 16 C1.5 26 5.5 31 13 31 C20.5 31 24.5 26 24.5 16 C24.5 8 23 2 23 2" stroke="#aab4c4" stroke-width="1.6" fill="#f8fafc" stroke-linecap="round" stroke-linejoin="round"/></svg>';
       }
-      function buildArch(jaw, containerId, rightId, midId, leftId, absentId, hiddenContactsId, hiddenAbsentId) {
-        var el = document.getElementById(containerId);
-        var rightEl = document.getElementById(rightId);
-        var midEl = document.getElementById(midId);
-        var leftEl = document.getElementById(leftId);
-        var absentEl = document.getElementById(absentId);
-        var hiddenContacts = document.getElementById(hiddenContactsId);
-        var hiddenAbsent = document.getElementById(hiddenAbsentId);
-        var isUpper = jaw === 'U';
-        var teeth = [];
-        for (var n = 8; n >= 1; n--) teeth.push({side:'R', n:n});
-        for (var n = 1; n <= 8; n++) teeth.push({side:'L', n:n});
-        function toothLabel(t) {
-          var q = isUpper ? (t.side==='R'?'UR':'UL') : (t.side==='R'?'LR':'LL');
+      function overlayText(s) {
+        if (s === 'absent')  return '✕';
+        if (s === 'crown')   return 'Cr';
+        if (s === 'implant') return 'Im';
+        return '';
+      }
+      function contactGlyph(s) {
+        if (s === 'fake') return '✕';
+        if (s === 'real') return '✓';
+        return '';
+      }
+      function buildArch(jaw, rowId, fakesId, realsId, miscId, hidContactsId, hidStatesId) {
+        const row       = document.getElementById(rowId);
+        const fakesEl   = document.getElementById(fakesId);
+        const realsEl   = document.getElementById(realsId);
+        const miscEl    = document.getElementById(miscId);
+        const hContacts = document.getElementById(hidContactsId);
+        const hStates   = document.getElementById(hidStatesId);
+        const isUpper   = jaw === 'U';
+        const teeth = [];
+        for (let n = 8; n >= 1; n--) teeth.push({ side: 'R', n });
+        for (let n = 1; n <= 8; n++) teeth.push({ side: 'L', n });
+        function label(t) {
+          const q = isUpper ? (t.side === 'R' ? 'UR' : 'UL') : (t.side === 'R' ? 'LR' : 'LL');
           return q + t.n;
         }
-        function contactLabel(t1, t2) { return toothLabel(t1) + '-' + toothLabel(t2); }
-        var checkedContacts = {};
-        var absentTeeth = {};
+        function cLabel(t1, t2) { return label(t1) + '-' + label(t2); }
+        const toothState   = new Array(teeth.length).fill('normal');
+        const contactState = new Array(teeth.length - 1).fill('none');
         function updateSummary() {
-          rightEl.innerHTML = '';
-          midEl.innerHTML = '';
-          leftEl.innerHTML = '';
-          absentEl.innerHTML = '';
-          var contactVals = [];
-          for (var i = 0; i < teeth.length - 1; i++) {
-            if (checkedContacts[i]) {
-              var lbl = contactLabel(teeth[i], teeth[i+1]);
-              contactVals.push(lbl);
-              var chip = document.createElement('span');
-              chip.className = 'ipr-chip';
-              chip.textContent = lbl;
-              if (i < 7) rightEl.appendChild(chip);
-              else if (i === 7) midEl.appendChild(chip);
-              else leftEl.appendChild(chip);
-            }
+          fakesEl.innerHTML = '';
+          realsEl.innerHTML = '';
+          miscEl.innerHTML  = '';
+          const cVals = [];
+          for (let i = 0; i < contactState.length; i++) {
+            const cs = contactState[i];
+            if (cs === 'none') continue;
+            const lbl = cLabel(teeth[i], teeth[i + 1]);
+            cVals.push(cs + ':' + lbl);
+            const chip = document.createElement('span');
+            chip.className = 'ipr-chip ' + cs;
+            chip.textContent = (cs === 'real' ? '✓ ' : '✗ ') + lbl;
+            if (cs === 'fake') fakesEl.appendChild(chip);
+            else               realsEl.appendChild(chip);
           }
-          hiddenContacts.value = contactVals.join(', ');
-          var absentVals = [];
-          for (var i = 0; i < teeth.length; i++) {
-            if (absentTeeth[i]) {
-              var lbl = toothLabel(teeth[i]);
-              absentVals.push(lbl);
-              var chip = document.createElement('span');
-              chip.className = 'ipr-chip absent-chip';
-              chip.textContent = lbl + ' absent';
-              absentEl.appendChild(chip);
-            }
+          hContacts.value = cVals.join(', ');
+          const sVals = [];
+          for (let i = 0; i < toothState.length; i++) {
+            const ts = toothState[i];
+            if (ts === 'normal') continue;
+            const lbl = label(teeth[i]);
+            sVals.push(ts + ':' + lbl);
+            const chip = document.createElement('span');
+            chip.className = 'ipr-chip ' + ts;
+            chip.textContent = (ts === 'absent' ? '✕' : ts === 'crown' ? 'Cr' : 'Im') + ' ' + lbl;
+            miscEl.appendChild(chip);
           }
-          hiddenAbsent.value = absentVals.join(', ');
+          hStates.value = sVals.join(', ');
         }
-        teeth.forEach(function(tooth, i) {
-          var lbl = toothLabel(tooth);
-          var tb = document.createElement('div');
+        teeth.forEach((tooth, i) => {
+          const tb = document.createElement('div');
           tb.className = 'ipr-tooth-block';
-          tb.title = 'Click to mark ' + lbl + ' absent';
-          var num = document.createElement('div');
+          tb.dataset.state = 'normal';
+          tb.title = label(tooth) + ' — click to cycle';
+          const num = document.createElement('div');
           num.className = 'ipr-tooth-num';
           num.textContent = tooth.n;
-          var svgWrap = document.createElement('div');
+          const svgWrap = document.createElement('div');
           svgWrap.className = 'ipr-tooth-svg-wrap';
           svgWrap.innerHTML = isUpper ? upperSVG() : lowerSVG();
-          var xMark = document.createElement('div');
-          xMark.className = 'ipr-absent-x';
-          xMark.textContent = '✕';
-          svgWrap.appendChild(xMark);
+          const overlay = document.createElement('div');
+          overlay.className = 'ipr-tooth-overlay';
+          svgWrap.appendChild(overlay);
           if (isUpper) { tb.appendChild(num); tb.appendChild(svgWrap); }
-          else { tb.appendChild(svgWrap); tb.appendChild(num); }
-          (function(idx) {
-            tb.addEventListener('click', function() {
-              if (tb.classList.contains('absent')) {
-                tb.classList.remove('absent');
-                absentTeeth[idx] = false;
-              } else {
-                tb.classList.add('absent');
-                absentTeeth[idx] = true;
-              }
+          else         { tb.appendChild(svgWrap); tb.appendChild(num); }
+          tb.addEventListener('click', () => {
+            const cur = TOOTH_STATES.indexOf(toothState[i]);
+            toothState[i] = TOOTH_STATES[(cur + 1) % TOOTH_STATES.length];
+            tb.dataset.state = toothState[i];
+            overlay.textContent = overlayText(toothState[i]);
+            updateSummary();
+          });
+          row.appendChild(tb);
+          if (i < teeth.length - 1) {
+            const cb = document.createElement('div');
+            cb.className = 'ipr-contact-block';
+            cb.dataset.state = 'none';
+            cb.title = cLabel(tooth, teeth[i + 1]);
+            const dot = document.createElement('div');
+            dot.className = 'ipr-contact-dot';
+            cb.appendChild(dot);
+            cb.addEventListener('click', (e) => {
+              e.stopPropagation();
+              const cur = CONTACT_STATES.indexOf(contactState[i]);
+              contactState[i] = CONTACT_STATES[(cur + 1) % CONTACT_STATES.length];
+              cb.dataset.state = contactState[i];
+              dot.textContent = contactGlyph(contactState[i]);
               updateSummary();
             });
-          })(i);
-          el.appendChild(tb);
-          if (i < teeth.length - 1) {
-            var cbBlock = document.createElement('div');
-            cbBlock.className = 'ipr-contact-block';
-            var cLbl = contactLabel(tooth, teeth[i+1]);
-            cbBlock.title = cLbl;
-            var cb = document.createElement('input');
-            cb.type = 'checkbox';
-            cb.className = 'ipr-contact-cb';
-            cb.setAttribute('aria-label', cLbl);
-            (function(idx) {
-              cb.addEventListener('change', function(e) {
-                e.stopPropagation();
-                checkedContacts[idx] = cb.checked;
-                updateSummary();
-              });
-            })(i);
-            cbBlock.appendChild(cb);
-            el.appendChild(cbBlock);
+            row.appendChild(cb);
           }
         });
+        updateSummary();
       }
-      buildArch('U','ipr-upper-arch','ipr-upper-chips-right','ipr-upper-chips-mid','ipr-upper-chips-left','ipr-upper-absent','ipr-upper-hidden','ipr-absent-hidden');
-      buildArch('L','ipr-lower-arch','ipr-lower-chips-right','ipr-lower-chips-mid','ipr-lower-chips-left','ipr-lower-absent','ipr-lower-hidden','ipr-absent-hidden');
+      buildArch('U', 'ipr-upper-arch', 'ipr-upper-chips-fake', 'ipr-upper-chips-real', 'ipr-upper-misc', 'ipr-upper-contacts', 'ipr-upper-tooth-states');
+      buildArch('L', 'ipr-lower-arch', 'ipr-lower-chips-fake', 'ipr-lower-chips-real', 'ipr-lower-misc', 'ipr-lower-contacts', 'ipr-lower-tooth-states');
     })();
     </script>
 
