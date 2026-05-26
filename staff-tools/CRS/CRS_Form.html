@@ -1293,6 +1293,10 @@ function collectCaseData() {
     btnsUpperB, btnsUpperL, btnsLowerB, btnsLowerL,
     elasticStrength, elasticSched,
     special: getChecked('entry.2057393459'),
+    iprUpperContacts: document.getElementById('ipr-upper-contacts')?.value || '',
+    iprLowerContacts: document.getElementById('ipr-lower-contacts')?.value || '',
+    iprUpperTeeth:    document.getElementById('ipr-upper-tooth-states')?.value || '',
+    iprLowerTeeth:    document.getElementById('ipr-lower-tooth-states')?.value || '',
   };
 }
 
@@ -1401,6 +1405,8 @@ function generateReceiptHTML(d) {
       ${row('Purpose', d.iprPurpose)}
     </table>
   </div>
+
+  ${(()=>{ const uc=d.iprUpperContacts||'', lc=d.iprLowerContacts||'', ut=d.iprUpperTeeth||'', lt=d.iprLowerTeeth||''; if(!uc&&!lc&&!ut&&!lt) return ''; const parse=(s,type)=>s.split(', ').filter(v=>v.startsWith(type+':')).map(v=>v.slice(type.length+1)); return `<div class="section"><div class="sec-title">✂️ IPR Contact Map</div><table>${row('Upper — Fake IPR',parse(uc,'fake'))}${row('Upper — Real IPR',parse(uc,'real'))}${row('Lower — Fake IPR',parse(lc,'fake'))}${row('Lower — Real IPR',parse(lc,'real'))}${ut?row('Upper Teeth',ut):''}${lt?row('Lower Teeth',lt):''}</table></div>`; })()}
 
   <div class="section">
     <div class="sec-title">📡 iTero Scan</div>
@@ -1526,6 +1532,11 @@ async function submitForm() {
     } else {
       params.append(el.name, el.value);
     }
+  });
+
+  // Hidden inputs — captures Section 3.1 IPR chart data
+  form.querySelectorAll('input[type="hidden"][name]').forEach(el => {
+    if (el.value) params.append(el.name, el.value);
   });
 
   const submitBtn = document.querySelector('.btn-submit');
