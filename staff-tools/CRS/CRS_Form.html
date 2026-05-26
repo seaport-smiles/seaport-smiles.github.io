@@ -726,8 +726,117 @@
         });
         updateSummary();
       }
+      const _archResetFns = [];
+      const _origBuildArch = buildArch;
+      function buildArch(jaw, rowId, fakesId, realsId, miscId, hidContactsId, hidStatesId) {
+        const row       = document.getElementById(rowId);
+        const fakesEl   = document.getElementById(fakesId);
+        const realsEl   = document.getElementById(realsId);
+        const miscEl    = document.getElementById(miscId);
+        const hContacts = document.getElementById(hidContactsId);
+        const hStates   = document.getElementById(hidStatesId);
+        const isUpper   = jaw === 'U';
+        const teeth = [];
+        for (let n = 8; n >= 1; n--) teeth.push({ side: 'R', n });
+        for (let n = 1; n <= 8; n++) teeth.push({ side: 'L', n });
+        function label(t) {
+          const q = isUpper ? (t.side === 'R' ? 'UR' : 'UL') : (t.side === 'R' ? 'LR' : 'LL');
+          return q + t.n;
+        }
+        function cLabel(t1, t2) { return label(t1) + '-' + label(t2); }
+        const toothState   = new Array(teeth.length).fill('normal');
+        const contactState = new Array(teeth.length - 1).fill('none');
+        function updateSummary() {
+          fakesEl.innerHTML = '';
+          realsEl.innerHTML = '';
+          miscEl.innerHTML  = '';
+          const cVals = [];
+          for (let i = 0; i < contactState.length; i++) {
+            const cs = contactState[i];
+            if (cs === 'none') continue;
+            const lbl = cLabel(teeth[i], teeth[i + 1]);
+            cVals.push(cs + ':' + lbl);
+            const chip = document.createElement('span');
+            chip.className = 'ipr-chip ' + cs;
+            chip.textContent = (cs === 'real' ? '✓ ' : '✗ ') + lbl;
+            if (cs === 'fake') fakesEl.appendChild(chip);
+            else               realsEl.appendChild(chip);
+          }
+          hContacts.value = cVals.join(', ');
+          const sVals = [];
+          for (let i = 0; i < toothState.length; i++) {
+            const ts = toothState[i];
+            if (ts === 'normal') continue;
+            const lbl = label(teeth[i]);
+            sVals.push(ts + ':' + lbl);
+            const chip = document.createElement('span');
+            chip.className = 'ipr-chip ' + ts;
+            chip.textContent = (ts === 'absent' ? '✕' : ts === 'crown' ? 'Cr' : 'Im') + ' ' + lbl;
+            miscEl.appendChild(chip);
+          }
+          hStates.value = sVals.join(', ');
+        }
+        teeth.forEach((tooth, i) => {
+          const tb = document.createElement('div');
+          tb.className = 'ipr-tooth-block';
+          tb.dataset.state = 'normal';
+          tb.title = label(tooth) + ' — click to cycle';
+          const num = document.createElement('div');
+          num.className = 'ipr-tooth-num';
+          num.textContent = tooth.n;
+          const svgWrap = document.createElement('div');
+          svgWrap.className = 'ipr-tooth-svg-wrap';
+          svgWrap.innerHTML = isUpper ? upperSVG() : lowerSVG();
+          const overlay = document.createElement('div');
+          overlay.className = 'ipr-tooth-overlay';
+          svgWrap.appendChild(overlay);
+          if (isUpper) { tb.appendChild(num); tb.appendChild(svgWrap); }
+          else         { tb.appendChild(svgWrap); tb.appendChild(num); }
+          tb.addEventListener('click', () => {
+            const cur = TOOTH_STATES.indexOf(toothState[i]);
+            toothState[i] = TOOTH_STATES[(cur + 1) % TOOTH_STATES.length];
+            tb.dataset.state = toothState[i];
+            overlay.textContent = overlayText(toothState[i]);
+            updateSummary();
+          });
+          row.appendChild(tb);
+          if (i < teeth.length - 1) {
+            const cb = document.createElement('div');
+            cb.className = 'ipr-contact-block';
+            cb.dataset.state = 'none';
+            cb.title = cLabel(tooth, teeth[i + 1]);
+            const dot = document.createElement('div');
+            dot.className = 'ipr-contact-dot';
+            cb.appendChild(dot);
+            cb.addEventListener('click', (e) => {
+              e.stopPropagation();
+              const cur = CONTACT_STATES.indexOf(contactState[i]);
+              contactState[i] = CONTACT_STATES[(cur + 1) % CONTACT_STATES.length];
+              cb.dataset.state = contactState[i];
+              dot.textContent = contactGlyph(contactState[i]);
+              updateSummary();
+            });
+            row.appendChild(cb);
+          }
+        });
+        updateSummary();
+        _archResetFns.push(function() {
+          toothState.fill('normal');
+          contactState.fill('none');
+          row.querySelectorAll('.ipr-tooth-block').forEach(tb => {
+            tb.dataset.state = 'normal';
+            tb.querySelector('.ipr-tooth-overlay').textContent = '';
+          });
+          row.querySelectorAll('.ipr-contact-block').forEach(cb => {
+            cb.dataset.state = 'none';
+            cb.querySelector('.ipr-contact-dot').textContent = '';
+          });
+          updateSummary();
+        });
+      }
       buildArch('U', 'ipr-upper-arch', 'ipr-upper-chips-fake', 'ipr-upper-chips-real', 'ipr-upper-misc', 'ipr-upper-contacts', 'ipr-upper-tooth-states');
       buildArch('L', 'ipr-lower-arch', 'ipr-lower-chips-fake', 'ipr-lower-chips-real', 'ipr-lower-misc', 'ipr-lower-contacts', 'ipr-lower-tooth-states');
+      window.resetIPRChart = function() { _archResetFns.forEach(fn => fn()); };
     })();
     </script>
 
@@ -1581,6 +1690,7 @@ async function submitForm() {
   // Reset form after brief delay
   setTimeout(() => {
     form.reset();
+    if (window.resetIPRChart) window.resetIPRChart();
     document.querySelectorAll('.other-text').forEach(el => {
       el.classList.add('hidden');
       el.value = '';
@@ -1593,6 +1703,7 @@ async function submitForm() {
 function clearForm() {
   if (!confirm('Clear all fields?')) return;
   document.getElementById('crsForm').reset();
+  if (window.resetIPRChart) window.resetIPRChart();
   document.querySelectorAll('.other-text').forEach(el => {
     el.classList.add('hidden');
     el.value = '';
