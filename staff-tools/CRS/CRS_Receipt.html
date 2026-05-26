@@ -197,6 +197,28 @@ function render(d) {
         </table>
       </div>
 
+      ${(()=>{
+        const uc = d.iprUpperContacts||'', lc = d.iprLowerContacts||'',
+              ut = d.iprUpperTeeth||'',    lt = d.iprLowerTeeth||'';
+        if (!uc && !lc && !ut && !lt) return '';
+        const parse = (s, type) => s ? s.split(', ').filter(v => v.startsWith(type+':')).map(v => v.slice(type.length+1)) : [];
+        const iprRow = (label, vals) => {
+          if (!vals || !vals.length) return '';
+          return `<tr><td class="lbl">${label}</td><td>${vals.map(v=>`<span class="tag">${v}</span>`).join(' ')}</td></tr>`;
+        };
+        return `<div class="section">
+          <div class="sec-title">✂️ IPR Contact Map</div>
+          <table>
+            ${iprRow('Upper — Fake IPR', parse(uc,'fake'))}
+            ${iprRow('Upper — Real IPR', parse(uc,'real'))}
+            ${iprRow('Lower — Fake IPR', parse(lc,'fake'))}
+            ${iprRow('Lower — Real IPR', parse(lc,'real'))}
+            ${ut ? iprRow('Upper Teeth', ut.split(', ')) : ''}
+            ${lt ? iprRow('Lower Teeth', lt.split(', ')) : ''}
+          </table>
+        </div>`;
+      })()}
+
       ${elasticHTML}
     </div>`;
 
