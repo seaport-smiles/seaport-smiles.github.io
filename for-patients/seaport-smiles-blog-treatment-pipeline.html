@@ -1,0 +1,722 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>What Actually Happens Between Your Consultation and Your First Aligner — Seaport Smiles</title>
+<meta name="description" content="A step-by-step guide to the Invisalign treatment process at Seaport Smiles — from your first visit to your final smile.">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --navy: #0f1d35;
+    --teal: #2a8c8c;
+    --teal-light: #e6f4f4;
+    --gold: #b8924a;
+    --gold-light: #fdf6eb;
+    --cream: #faf8f5;
+    --white: #ffffff;
+    --text: #1e2b3a;
+    --muted: #6b7a8d;
+    --border: #e4e7ee;
+    --light-bg: #f5f7fa;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'Outfit', sans-serif;
+    background: var(--white);
+    color: var(--text);
+    overflow-x: hidden;
+  }
+
+  /* ── NAV ── */
+  nav {
+    padding: 18px 48px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid var(--border);
+    background: var(--white);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .nav-logo {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--navy);
+    text-decoration: none;
+  }
+  .nav-logo span { color: var(--teal); }
+  .nav-links { display: flex; align-items: center; gap: 28px; }
+  .nav-links a {
+    font-size: 13px;
+    font-weight: 400;
+    color: var(--muted);
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+  .nav-links a:hover { color: var(--navy); }
+  .nav-cta {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--white) !important;
+    background: var(--navy);
+    padding: 8px 20px;
+    border-radius: 6px;
+    transition: background 0.2s !important;
+  }
+  .nav-cta:hover { background: var(--teal) !important; color: var(--white) !important; }
+
+  /* ── BLOG HEADER ── */
+  .blog-header {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 72px 24px 48px;
+  }
+
+  .blog-category {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--teal);
+    margin-bottom: 20px;
+  }
+  .blog-category::before {
+    content: '';
+    display: block;
+    width: 24px;
+    height: 1px;
+    background: var(--teal);
+  }
+
+  .blog-header h1 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(34px, 5vw, 56px);
+    font-weight: 400;
+    color: var(--navy);
+    line-height: 1.15;
+    letter-spacing: -0.01em;
+    margin-bottom: 24px;
+  }
+  .blog-header h1 em { font-style: italic; color: var(--teal); }
+
+  .blog-meta {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    padding: 20px 0;
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+    flex-wrap: wrap;
+  }
+  .blog-meta-item {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    font-size: 12.5px;
+    color: var(--muted);
+  }
+  .blog-meta-item strong { color: var(--text); font-weight: 500; }
+  .meta-dot { width: 3px; height: 3px; border-radius: 50%; background: var(--border); }
+
+  .blog-intro {
+    font-size: 17px;
+    font-weight: 300;
+    color: #3a4a5c;
+    line-height: 1.85;
+    margin-top: 36px;
+    padding-bottom: 36px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  /* ── TOC ── */
+  .toc-wrap {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 0 24px 48px;
+  }
+  .toc {
+    background: var(--light-bg);
+    border-radius: 10px;
+    padding: 24px 28px;
+    border: 1px solid var(--border);
+  }
+  .toc-title {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 14px;
+  }
+  .toc ol {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .toc ol li {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    font-size: 13.5px;
+  }
+  .toc ol li span {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 15px;
+    color: var(--teal);
+    font-weight: 600;
+    flex-shrink: 0;
+    width: 20px;
+  }
+  .toc ol li a {
+    color: var(--text);
+    text-decoration: none;
+    font-weight: 400;
+    transition: color 0.2s;
+  }
+  .toc ol li a:hover { color: var(--teal); }
+
+  /* ── ARTICLE BODY ── */
+  .blog-body {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 0 24px 80px;
+  }
+
+  .blog-step {
+    margin-bottom: 72px;
+    padding-bottom: 72px;
+    border-bottom: 1px solid var(--border);
+  }
+  .blog-step:last-child { border-bottom: none; }
+
+  .step-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 20px;
+    margin-bottom: 24px;
+  }
+  .step-num-block {
+    flex-shrink: 0;
+    width: 52px;
+    height: 52px;
+    border-radius: 10px;
+    background: var(--navy);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 4px;
+  }
+  .step-num-block span {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 22px;
+    font-weight: 300;
+    color: white;
+    line-height: 1;
+  }
+  .step-header-text { flex: 1; }
+  .step-tag {
+    display: inline-block;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 3px 10px;
+    border-radius: 20px;
+    margin-bottom: 8px;
+  }
+  .tag-start { background: var(--teal-light); color: var(--teal); }
+  .tag-prep { background: var(--gold-light); color: var(--gold); }
+  .tag-planning { background: #e8edf5; color: #2c3e5c; }
+  .tag-active { background: #edf5e8; color: #3d6b2a; }
+  .tag-finish { background: #f5e8f0; color: #6b2a55; }
+
+  .step-header-text h2 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(24px, 3.5vw, 34px);
+    font-weight: 400;
+    color: var(--navy);
+    line-height: 1.2;
+  }
+
+  .blog-step p {
+    font-size: 15px;
+    font-weight: 300;
+    color: #3a4a5c;
+    line-height: 1.85;
+    margin-bottom: 20px;
+  }
+  .blog-step p:last-child { margin-bottom: 0; }
+
+  /* Callout box */
+  .callout {
+    border-radius: 10px;
+    padding: 22px 26px;
+    margin: 28px 0;
+  }
+  .callout-navy {
+    background: var(--navy);
+    color: white;
+  }
+  .callout-teal { background: var(--teal-light); border-left: 3px solid var(--teal); }
+  .callout-gold { background: var(--gold-light); border-left: 3px solid var(--gold); }
+  .callout-title {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+  }
+  .callout-navy .callout-title { color: var(--teal); }
+  .callout-teal .callout-title { color: var(--teal); }
+  .callout-gold .callout-title { color: var(--gold); }
+  .callout p {
+    font-size: 14px !important;
+    line-height: 1.75 !important;
+    margin-bottom: 0 !important;
+  }
+  .callout-navy p { color: rgba(255,255,255,0.75) !important; }
+  .callout-teal p { color: #1a4f4f !important; }
+  .callout-gold p { color: #6b4a0f !important; }
+
+  .callout-rule {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-top: 18px;
+    background: rgba(255,255,255,0.07);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 8px;
+    padding: 14px 18px;
+  }
+  .callout-rule-num {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 44px;
+    font-weight: 300;
+    color: var(--teal);
+    line-height: 1;
+    flex-shrink: 0;
+  }
+  .callout-rule-text strong { font-size: 13.5px; font-weight: 600; color: white; display: block; margin-bottom: 2px; }
+  .callout-rule-text span { font-size: 12px; color: rgba(255,255,255,0.5); line-height: 1.5; }
+
+  /* Detail list */
+  .detail-list {
+    list-style: none;
+    margin: 20px 0;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .detail-list li {
+    display: flex;
+    gap: 12px;
+    font-size: 14px;
+    font-weight: 300;
+    color: #3a4a5c;
+    line-height: 1.7;
+    padding: 12px 16px;
+    background: var(--light-bg);
+    border-radius: 8px;
+    border: 1px solid var(--border);
+  }
+  .detail-list li .di { flex-shrink: 0; font-size: 15px; margin-top: 1px; }
+  .detail-list li strong { color: var(--navy); font-weight: 500; }
+
+  /* Time badge */
+  .time-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    font-size: 12.5px;
+    font-weight: 500;
+    color: var(--muted);
+    background: var(--light-bg);
+    border: 1px solid var(--border);
+    padding: 7px 16px;
+    border-radius: 20px;
+    margin-top: 8px;
+  }
+  .time-badge strong { color: var(--teal); font-weight: 600; }
+
+  /* ── SUMMARY TABLE ── */
+  .summary-section {
+    background: var(--light-bg);
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+    padding: 64px 24px;
+    margin-bottom: 0;
+  }
+  .summary-inner { max-width: 720px; margin: 0 auto; }
+  .summary-eyebrow {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--teal);
+    margin-bottom: 12px;
+  }
+  .summary-inner h2 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(26px, 3.5vw, 38px);
+    font-weight: 400;
+    color: var(--navy);
+    margin-bottom: 32px;
+    line-height: 1.2;
+  }
+  .summary-table { width: 100%; border-collapse: collapse; }
+  .summary-table th {
+    background: var(--navy);
+    color: white;
+    font-size: 10.5px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 10px 16px;
+    text-align: left;
+  }
+  .summary-table th:first-child { border-radius: 8px 0 0 0; }
+  .summary-table th:last-child { border-radius: 0 8px 0 0; }
+  .summary-table td {
+    padding: 12px 16px;
+    font-size: 13.5px;
+    color: #3a4a5c;
+    border-bottom: 1px solid var(--border);
+    background: white;
+    vertical-align: top;
+    line-height: 1.5;
+  }
+  .summary-table td:first-child { font-weight: 500; color: var(--navy); }
+  .summary-table tr:last-child td { border-bottom: none; }
+  .summary-table tr:last-child td:first-child { border-radius: 0 0 0 8px; }
+  .summary-table tr:last-child td:last-child { border-radius: 0 0 8px 0; }
+  .td-time { color: var(--teal); font-weight: 600; font-size: 12.5px; white-space: nowrap; }
+
+  /* ── CTA ── */
+  .blog-cta {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 64px 24px 80px;
+    text-align: center;
+  }
+  .blog-cta h2 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(28px, 4vw, 44px);
+    font-weight: 400;
+    color: var(--navy);
+    margin-bottom: 16px;
+    line-height: 1.2;
+  }
+  .blog-cta p {
+    font-size: 15px;
+    font-weight: 300;
+    color: var(--muted);
+    max-width: 440px;
+    margin: 0 auto 32px;
+    line-height: 1.8;
+  }
+  .cta-btn {
+    display: inline-block;
+    padding: 14px 36px;
+    background: var(--navy);
+    color: white;
+    font-weight: 500;
+    font-size: 14px;
+    letter-spacing: 0.03em;
+    border-radius: 8px;
+    text-decoration: none;
+    transition: all 0.2s;
+  }
+  .cta-btn:hover { background: var(--teal); transform: translateY(-2px); box-shadow: 0 8px 24px rgba(42,140,140,0.25); }
+
+  /* ── FOOTER ── */
+  footer {
+    background: var(--navy);
+    padding: 36px 48px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+  footer .nav-logo { font-size: 17px; color: white; }
+  footer .nav-logo span { color: var(--teal); }
+  footer p { font-size: 12px; color: rgba(255,255,255,0.3); }
+
+  @media (max-width: 640px) {
+    nav { padding: 14px 20px; }
+    .nav-links { display: none; }
+    .blog-header, .toc-wrap, .blog-body, .blog-cta { padding-left: 20px; padding-right: 20px; }
+    .step-num-block { width: 42px; height: 42px; }
+    footer { padding: 28px 20px; flex-direction: column; text-align: center; }
+    .summary-table { font-size: 12.5px; }
+    .summary-table td, .summary-table th { padding: 10px 12px; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="https://www.seaportsmiles.com" class="nav-logo">Seaport <span>Smiles</span></a>
+  <div class="nav-links">
+    <a href="https://www.seaportsmiles.com">Home</a>
+    <a href="https://www.seaportsmiles.com/services">Services</a>
+    <a href="https://www.seaportsmiles.com/contact" class="nav-cta">Schedule a Consult</a>
+  </div>
+</nav>
+
+<!-- HEADER -->
+<div class="blog-header">
+  <div class="blog-category">Patient Guide</div>
+  <h1>What actually happens between your consultation and your <em>first aligner.</em></h1>
+  <div class="blog-meta">
+    <div class="blog-meta-item">✍️ <strong>Dr. Osborn</strong></div>
+    <div class="meta-dot"></div>
+    <div class="blog-meta-item">🏥 Seaport Smiles</div>
+    <div class="meta-dot"></div>
+    <div class="blog-meta-item">⏱ 6 min read</div>
+    <div class="meta-dot"></div>
+    <div class="blog-meta-item">🦷 Invisalign</div>
+  </div>
+  <p class="blog-intro">One of the most common questions we hear after a patient decides to move forward with Invisalign is some version of: <em>"So… what happens now?"</em> It's a fair question. There's a lot that happens between saying yes and putting in your first aligner — and most of it is invisible to the patient. This guide walks through every phase so you know exactly what to expect, what we need from you, and why each step matters.</p>
+</div>
+
+<!-- TOC -->
+<div class="toc-wrap">
+  <div class="toc">
+    <div class="toc-title">In this article</div>
+    <ol>
+      <li><span>01</span><a href="#step1">Your New Patient Consultation</a></li>
+      <li><span>02</span><a href="#step2">Dental Clearance from Your Dentist</a></li>
+      <li><span>03</span><a href="#step3">ClinCheck — Your Digital Treatment Plan</a></li>
+      <li><span>04</span><a href="#step4">Aligner Manufacturing & Delivery</a></li>
+      <li><span>05</span><a href="#step5">Your Invisalign Start Appointment</a></li>
+      <li><span>06</span><a href="#step6">Retention — Protecting Your Results</a></li>
+    </ol>
+  </div>
+</div>
+
+<!-- BODY -->
+<div class="blog-body">
+
+  <!-- Step 1 -->
+  <div class="blog-step" id="step1">
+    <div class="step-header">
+      <div class="step-num-block"><span>01</span></div>
+      <div class="step-header-text">
+        <div class="step-tag tag-start">Getting Started</div>
+        <h2>Your New Patient Consultation</h2>
+      </div>
+    </div>
+    <p>Your first visit is more than a meet-and-greet. Dr. Osborn will conduct a full clinical evaluation of your teeth, bite, and facial structure — and take all the diagnostic records needed to understand your case in detail.</p>
+    <p>This typically includes clinical photographs, X-rays, and a digital iTero scan of your teeth. The scan is one of the most important pieces: it creates a precise 3D model of your mouth that becomes the foundation for your entire treatment plan.</p>
+    <ul class="detail-list">
+      <li><div class="di">📸</div><div><strong>Records taken:</strong> Clinical photos, panoramic and cephalometric X-rays, and a digital iTero scan</div></li>
+      <li><div class="di">💬</div><div><strong>What we discuss:</strong> Your goals, what Invisalign can achieve for your specific case, estimated treatment length, and financial options</div></li>
+      <li><div class="di">📋</div><div><strong>If you're ready to proceed:</strong> We'll finalize your contract and reserve a start date — so you leave with something on the calendar</div></li>
+    </ul>
+    <div class="time-badge">⏱ Plan for <strong>45–60 minutes</strong> for a thorough first visit</div>
+  </div>
+
+  <!-- Step 2 -->
+  <div class="blog-step" id="step2">
+    <div class="step-header">
+      <div class="step-num-block" style="background:var(--gold);"><span>02</span></div>
+      <div class="step-header-text">
+        <div class="step-tag tag-prep">Important Step</div>
+        <h2>Dental Clearance from Your Dentist</h2>
+      </div>
+    </div>
+    <p>Before we begin building your treatment plan, we need a clearance form from your general dentist confirming that your teeth and gums are in good health. This is one of the most misunderstood steps in the process — so it's worth explaining carefully.</p>
+
+    <div class="callout callout-navy">
+      <div class="callout-title">Why clearance comes first</div>
+      <p>Your iTero scan is only accurate if the physical shape of your teeth isn't going to change. If you have an untreated cavity, a crown in progress, or any restorative work pending, the shape of that tooth could change — which would invalidate your existing scan. We'd need to rescan and restart the treatment plan entirely. Getting clearance before we begin planning protects the accuracy of your aligners and avoids wasted time for everyone.</p>
+      <div class="callout-rule">
+        <div class="callout-rule-num">3</div>
+        <div class="callout-rule-text">
+          <strong>Weeks minimum before your start date</strong>
+          <span>We need clearance at least 3 weeks before your appointment — that's the minimum time required to plan your case and have your aligners manufactured and shipped.</span>
+        </div>
+      </div>
+    </div>
+
+    <p>We'll reach out to your dentist directly (or give you the form to forward). Most dentists turn it around within a few days. If there's pending work that needs to be addressed first, we'll let you know exactly what it is and follow up once it's resolved.</p>
+
+    <ul class="detail-list">
+      <li><div class="di">✉️</div><div><strong>We send the form:</strong> We'll contact your dentist on file — or hand you the form to forward if that's faster</div></li>
+      <li><div class="di">⚠️</div><div><strong>If there's pending work:</strong> We'll tell you exactly what needs to be completed before we can move forward</div></li>
+      <li><div class="di">📬</div><div><strong>We follow up proactively:</strong> Our team monitors clearance for every patient with an upcoming start date — you'll hear from us before anything becomes a problem</div></li>
+    </ul>
+    <div class="time-badge">⏱ Clearance typically takes <strong>a few days to 1–2 weeks</strong> depending on your dentist's schedule</div>
+  </div>
+
+  <!-- Step 3 -->
+  <div class="blog-step" id="step3">
+    <div class="step-header">
+      <div class="step-num-block" style="background:#2c3e5c;"><span>03</span></div>
+      <div class="step-header-text">
+        <div class="step-tag tag-planning">Behind the Scenes</div>
+        <h2>ClinCheck — Your Digital Treatment Plan</h2>
+      </div>
+    </div>
+    <p>Once clearance is received, Dr. Osborn begins the clinical work. He submits a prescription to Invisalign's design team — a detailed set of instructions describing exactly how each tooth needs to move. Invisalign's CADCAM team then builds a digital simulation of your entire treatment: every stage, every tooth, from start to finish. This is called your ClinCheck.</p>
+    <p>When the initial design comes back, Dr. Osborn reviews every movement against your specific clinical goals. This review is detailed and deliberate — the goal isn't just to straighten teeth, it's to achieve the right result for your bite, function, and aesthetics.</p>
+
+    <div class="callout callout-gold">
+      <div class="callout-title">Revisions are normal — and a good sign</div>
+      <p>In most cases, Dr. Osborn requests refinements from Invisalign's design team before approving. There are movements that require a back-and-forth with their technicians — and that process takes time. It's not a complication. It's what careful treatment planning looks like.</p>
+    </div>
+
+    <p>Once every movement is exactly right, Dr. Osborn completes the Case Review Sheet and gives final approval. At that point, your case enters fabrication.</p>
+    <ul class="detail-list">
+      <li><div class="di">🔬</div><div><strong>Prescription submitted:</strong> Dr. Osborn sends detailed clinical instructions to Invisalign's design team</div></li>
+      <li><div class="di">✏️</div><div><strong>Review and refinement:</strong> The initial design is evaluated and revised until every tooth movement meets Dr. Osborn's clinical standard</div></li>
+      <li><div class="di">✅</div><div><strong>Final approval:</strong> ClinCheck approved, Case Review Sheet completed, case sent to manufacturing</div></li>
+    </ul>
+    <div class="time-badge">⏱ <strong>Approximately 1 week</strong> for planning, review, and approval</div>
+  </div>
+
+  <!-- Step 4 -->
+  <div class="blog-step" id="step4">
+    <div class="step-header">
+      <div class="step-num-block" style="background:#3d6b2a;"><span>04</span></div>
+      <div class="step-header-text">
+        <div class="step-tag tag-planning">Fabrication</div>
+        <h2>Aligner Manufacturing &amp; Delivery</h2>
+      </div>
+    </div>
+    <p>After Dr. Osborn approves the ClinCheck, Invisalign manufactures your complete aligner series at their facility. Every aligner is precision-made from your exact iTero scan and the approved treatment plan — your unique tooth anatomy, your specific movements, your case. No two sets are the same.</p>
+    <p>Once manufactured, the full series ships via UPS directly to our office. We log the arrival in our system and notify you as soon as they're in.</p>
+    <ul class="detail-list">
+      <li><div class="di">🏭</div><div><strong>Custom manufactured:</strong> Your entire aligner series is produced at once from the approved digital treatment plan</div></li>
+      <li><div class="di">🚚</div><div><strong>Shipped to us:</strong> Delivered directly to Seaport Smiles — we'll reach out the moment they arrive and confirm your start appointment</div></li>
+    </ul>
+    <div class="time-badge">⏱ <strong>10 business days</strong> from ClinCheck approval to delivery at our office</div>
+  </div>
+
+  <!-- Step 5 -->
+  <div class="blog-step" id="step5">
+    <div class="step-header">
+      <div class="step-num-block" style="background:var(--teal);"><span>05</span></div>
+      <div class="step-header-text">
+        <div class="step-tag tag-active">Active Treatment</div>
+        <h2>Your Invisalign Start Appointment</h2>
+      </div>
+    </div>
+    <p>Everything up to this point has been preparation. Your start appointment — we call it your ISB — is where treatment actually begins. Dr. Osborn will place any necessary attachments, fit your first set of aligners, and walk you through exactly how to care for them and get the most out of your treatment.</p>
+    <p>Active treatment involves returning every 6–8 weeks for progress checks. Between visits, you may submit photos through our Virtual Care portal so Dr. Osborn can monitor your progress remotely and catch anything that needs attention before your next in-office visit.</p>
+
+    <div class="callout callout-teal">
+      <div class="callout-title">The single biggest factor in staying on track</div>
+      <p>Wear time. Aligners need to be worn 20–22 hours per day to work as planned. The movements in your ClinCheck are calculated based on consistent wear — skipping days or leaving aligners out extends your treatment timeline. It's the one variable entirely in your control.</p>
+    </div>
+
+    <ul class="detail-list">
+      <li><div class="di">🔵</div><div><strong>Attachments:</strong> Small tooth-colored dots on specific teeth that help aligners apply more precise force — not everyone needs them</div></li>
+      <li><div class="di">📱</div><div><strong>Virtual Care:</strong> Remote progress monitoring between visits via photo submission through our patient portal</div></li>
+      <li><div class="di">🗓️</div><div><strong>Progress visits:</strong> In-office check-ins every 6–8 weeks — brief, efficient, and important</div></li>
+    </ul>
+    <div class="time-badge">⏱ Active treatment: <strong>6–18 months</strong> depending on case complexity</div>
+  </div>
+
+  <!-- Step 6 -->
+  <div class="blog-step" id="step6">
+    <div class="step-header">
+      <div class="step-num-block" style="background:#6b2a55;"><span>06</span></div>
+      <div class="step-header-text">
+        <div class="step-tag tag-finish">Final Phase</div>
+        <h2>Retention — Protecting Your Results</h2>
+      </div>
+    </div>
+    <p>Finishing treatment is a real milestone. But it's important to understand what comes next — because without retention, teeth have a natural tendency to drift back toward where they started. It's not a flaw in the treatment. It's just how teeth behave.</p>
+    <p>Retainers are what hold your result in place. At Seaport Smiles, we fit you for custom Vivera retainers — made by Invisalign from your final scan. They fit more precisely than generic retainers and are designed to last.</p>
+    <ul class="detail-list">
+      <li><div class="di">🦷</div><div><strong>Vivera retainers:</strong> Custom-fit from your final scan — more precise and durable than off-the-shelf alternatives</div></li>
+      <li><div class="di">📅</div><div><strong>Wear schedule:</strong> Full-time initially, then nights only — Dr. Osborn will give you a specific protocol for your case</div></li>
+      <li><div class="di">🔄</div><div><strong>Replacement subscription:</strong> Retainers wear out over time. We offer a replacement program so you always have a fresh set — protecting your results long-term</div></li>
+    </ul>
+    <div class="time-badge">🏆 Your smile is protected <strong>for life</strong> with consistent retainer wear</div>
+  </div>
+
+</div>
+
+<!-- SUMMARY TABLE -->
+<div class="summary-section">
+  <div class="summary-inner">
+    <div class="summary-eyebrow">At a Glance</div>
+    <h2>The full timeline, summarized.</h2>
+    <table class="summary-table">
+      <thead>
+        <tr>
+          <th>Phase</th>
+          <th>What Happens</th>
+          <th>Who's Responsible</th>
+          <th>Timeline</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>01 — Consultation</td>
+          <td>Exam, records, scan, treatment discussion</td>
+          <td>Dr. Osborn + patient</td>
+          <td class="td-time">45–60 min visit</td>
+        </tr>
+        <tr>
+          <td>02 — Dental Clearance</td>
+          <td>Dentist confirms healthy teeth and gums</td>
+          <td>Patient + dentist</td>
+          <td class="td-time">Days to 2 weeks</td>
+        </tr>
+        <tr>
+          <td>03 — ClinCheck</td>
+          <td>Digital treatment plan built and approved</td>
+          <td>Dr. Osborn + Invisalign</td>
+          <td class="td-time">~1 week</td>
+        </tr>
+        <tr>
+          <td>04 — Fabrication</td>
+          <td>Aligners manufactured and shipped</td>
+          <td>Invisalign</td>
+          <td class="td-time">10 business days</td>
+        </tr>
+        <tr>
+          <td>05 — Active Treatment</td>
+          <td>Aligners worn, progress monitored</td>
+          <td>Patient + Dr. Osborn</td>
+          <td class="td-time">6–18 months</td>
+        </tr>
+        <tr>
+          <td>06 — Retention</td>
+          <td>Retainers worn to hold results</td>
+          <td>Patient</td>
+          <td class="td-time">Ongoing</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- CTA -->
+<div class="blog-cta">
+  <h2>Ready to start your journey?</h2>
+  <p>Schedule a complimentary consultation and let Dr. Osborn walk you through exactly what treatment would look like for you.</p>
+  <a href="https://www.seaportsmiles.com/contact" class="cta-btn">Book Your Consultation</a>
+</div>
+
+<footer>
+  <div class="nav-logo">Seaport <span>Smiles</span></div>
+  <p>© 2026 Seaport Smiles. All rights reserved.</p>
+</footer>
+
+</body>
+</html>
