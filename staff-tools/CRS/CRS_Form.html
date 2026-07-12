@@ -1271,6 +1271,14 @@
   </form><!-- end form -->
 </div>
 
+<!-- SHORT LINK BAR (shown after successful submit) -->
+<div id="shortlinkBar" style="display:none;position:fixed;bottom:64px;left:50%;transform:translateX(-50%);z-index:210;align-items:center;gap:10px;flex-wrap:wrap;max-width:92vw;padding:10px 16px;background:#eafaf1;border:1.5px solid #3a9e6e;border-radius:9px;box-shadow:0 4px 16px rgba(0,0,0,.12)">
+  <span style="font-size:12px;font-weight:700;color:#2d8059;text-transform:uppercase;letter-spacing:.4px">🔗 Receipt link</span>
+  <span id="shortlinkText" style="font-size:13px;font-weight:600;color:#1e293b;word-break:break-all;user-select:all"></span>
+  <button type="button" id="shortlinkCopyBtn" onclick="copyShortLink()" style="border:1.5px solid #3a9e6e;background:#fff;color:#2d8059;padding:5px 14px;border-radius:6px;font-size:12.5px;font-weight:700;cursor:pointer">📋 Copy</button>
+  <button type="button" onclick="document.getElementById('shortlinkBar').style.display='none'" style="border:none;background:transparent;color:#64748b;font-size:15px;cursor:pointer;padding:2px 4px" title="Dismiss">✕</button>
+</div>
+
 <!-- SUBMIT BAR -->
 <div class="submit-bar">
   <button type="button" class="btn-clear" onclick="clearForm()">Clear Form</button>
@@ -1575,23 +1583,106 @@ function copyLink(){
 }
 
 // ─── OPEN RECEIPT IN NEW TAB ─────────────────────────────────────────────
+// ─── SUPABASE (short receipt links + tracker sync) ──────────────────────
+const SUPA_URL = 'https://xrsonjxdoelpmtqzrszm.supabase.co';
+const SUPA_KEY = 'sb_publishable_gE0t48xudLKxuqmn90wuGg_5qb-T6Jg';
+const SITE_BASE = 'https://seaport-smiles.github.io';
+
+function makeShortCode() {
+  // no 0/O/1/l/I — codes get read aloud and retyped
+  const alphabet = 'ABCDEFGHJKMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789';
+  const bytes = new Uint8Array(10);
+  crypto.getRandomValues(bytes);
+  return Array.from(bytes, b => alphabet[b % alphabet.length]).join('');
+}
+
+async function saveSubmission(d, code) {
+  const arr = a => (a && a.length) ? a : null;
+  const row = {
+    short_code:       code,
+    case_data:        d,
+    receipt_html:     generateReceiptHTML(d),
+    patient_name:     d.patient,
+    complexity:       d.complexity    || null,
+    type:             d.type          || null,
+    appt_type:        d.apptType      || null,
+    scan_interval:    d.scanInterval  || null,
+    visit_schedule:   d.visitSchedule || null,
+    red_flags:        arr(d.redFlags),
+    key_notes:        d.keyNotes      || null,
+    ipr_plan:         arr(d.iprPlan),
+    ipr_purpose:      arr(d.iprPurpose),
+    passive_oc:       d.passiveOC     || null,
+    next_scan:        d.nextScan      || null,
+    scan_stage:       d.scanStage     || null,
+    inv_eval_stage:   d.invEvalStage  || null,
+    ne_teeth:         arr(d.neTeeth),
+    misc_concerns:    arr(d.miscConcerns),
+    appliances:       d.appliances    || null,
+    auxiliaries:      d.auxiliaries   || null,
+    propel:           d.propel        || null,
+    consents:         arr(d.consents),
+    extractions:      arr(d.extractions),
+    mods:             arr(d.mods),
+    elastics_worn:    d.elasticsWorn  || null,
+    btns_upper_b:     arr(d.btnsUpperB),
+    btns_upper_l:     arr(d.btnsUpperL),
+    btns_lower_b:     arr(d.btnsLowerB),
+    btns_lower_l:     arr(d.btnsLowerL),
+    elastic_strength: arr(d.elasticStrength),
+    elastic_sched:    arr(d.elasticSched),
+    special:          arr(d.special),
+  };
+  const r = await fetch(SUPA_URL + '/rest/v1/crs_submissions', {
+    method: 'POST',
+    headers: {
+      apikey: SUPA_KEY,
+      Authorization: 'Bearer ' + SUPA_KEY,
+      'Content-Type': 'application/json',
+      Prefer: 'return=minimal'
+    },
+    body: JSON.stringify(row)
+  });
+  if (!r.ok) throw new Error('Supabase insert failed: ' + r.status);
+}
+
+function showShortLink(url) {
+  document.getElementById('shortlinkText').textContent = url;
+  document.getElementById('shortlinkBar').style.display = 'flex';
+}
+
+function copyShortLink() {
+  const url = document.getElementById('shortlinkText').textContent;
+  navigator.clipboard.writeText(url).then(() => {
+    const b = document.getElementById('shortlinkCopyBtn');
+    b.textContent = '✓ Copied!';
+    setTimeout(() => b.textContent = '📋 Copy', 2000);
+  });
+}
+
 async function openReceipt(data) {
+  // Open the tab synchronously so the popup blocker allows it,
+  // then point it at the receipt once the save finishes.
+  const win = window.open('', '_blank');
   try {
-    const encoded = btoa(unescape(encodeURIComponent(JSON.stringify(data))));
-    const fullUrl = new URL('CRS_Receipt.html', window.location.href).href + '#' + encoded;
-    window.open(fullUrl, '_blank');
-    // Shorten via is.gd (free, CORS-enabled, no key required)
-    try {
-      const r = await fetch('https://is.gd/create.php?format=json&url=' + encodeURIComponent(fullUrl));
-      const j = await r.json();
-      if (j.shorturl) {
-        navigator.clipboard.writeText(j.shorturl).catch(() => {});
-        showToast('\uD83D\uDCCB ' + j.shorturl + ' \u2014 copied!');
-      }
-    } catch(e) { /* shortening failed silently — receipt already opened */ }
+    const code = makeShortCode();
+    await saveSubmission(data, code);
+    const shortUrl = SITE_BASE + '/r.html?c=' + code;
+    if (win) win.location = SITE_BASE + '/staff-tools/CRS/CRS_Receipt.html?c=' + code;
+    showShortLink(shortUrl);
+    navigator.clipboard.writeText(shortUrl).catch(() => {});
   } catch(e) {
-    const blob = new Blob([generateReceiptHTML(data)], { type: 'text/html' });
-    window.open(URL.createObjectURL(blob), '_blank');
+    // Supabase unavailable — fall back to the old self-contained long link
+    try {
+      const encoded = btoa(unescape(encodeURIComponent(JSON.stringify(data))));
+      const fullUrl = new URL('CRS_Receipt.html', window.location.href).href + '#' + encoded;
+      if (win) win.location = fullUrl; else window.open(fullUrl, '_blank');
+      showToast('⚠️ Short link unavailable — receipt opened with long link.', true);
+    } catch(e2) {
+      const blob = new Blob([generateReceiptHTML(data)], { type: 'text/html' });
+      const blobUrl = URL.createObjectURL(blob);
+      if (win) win.location = blobUrl; else window.open(blobUrl, '_blank');
+    }
   }
 }
 

@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="robots" content="noindex">
+<title>Seaport Smiles</title>
+</head>
+<body>
+<script>
+// Short receipt link: /r.html?c=CODE → CRS receipt viewer
+var c = new URLSearchParams(location.search).get('c');
+if (c) {
+  location.replace('/staff-tools/CRS/CRS_Receipt.html?c=' + encodeURIComponent(c));
+} else {
+  location.replace('/');
+}
+</script>
+</body>
+</html>
