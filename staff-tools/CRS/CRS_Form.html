@@ -311,6 +311,13 @@
              placeholder="Last Name, First Name" required autocomplete="off">
     </div>
 
+    <!-- IDS LINK — pastes here and in the Tuk-Tuk profile connect the two -->
+    <div class="patient-bar">
+      <label for="idsLink">IDS LINK</label>
+      <input type="text" id="idsLink"
+             placeholder="Paste the patient's IDS page link (patientId=…)" autocomplete="off">
+    </div>
+
     <!-- ═══ SECTION 1: CASE OVERVIEW ═══ -->
     <div class="section">
       <div class="section-header" onclick="toggleSection(this)">
@@ -1344,6 +1351,14 @@ function getText(name) {
 }
 
 // ─── BUILD RECEIPT DATA ─────────────────────────────────────────────────
+// Pull the numeric patientId out of an IDS URL, or accept a bare number.
+// Mirrors extract_ids_patient_id() in Supabase.
+function extractIdsPatientId(txt) {
+  if (!txt) return null;
+  const m = txt.match(/patientId=([0-9]+)/) || txt.trim().match(/^([0-9]{4,})$/);
+  return m ? m[1] : null;
+}
+
 function collectCaseData() {
   const ts = new Date();
   const dateStr = ts.toLocaleDateString('en-US',{weekday:'short',year:'numeric',month:'short',day:'numeric'});
@@ -1385,6 +1400,7 @@ function collectCaseData() {
   return {
     meta: { date: dateStr, time: timeStr },
     patient: getText('entry.671038191'),
+    idsPatientId: extractIdsPatientId(document.getElementById('idsLink').value),
     complexity: getChecked('entry.1880789122').join(''),
     type: getChecked('entry.52311826').join(''),
     apptType: getChecked('entry.1792544092').join(''),
@@ -1600,6 +1616,7 @@ async function saveSubmission(d, code) {
   const arr = a => (a && a.length) ? a : null;
   const row = {
     short_code:       code,
+    ids_patient_id:   d.idsPatientId || null,
     case_data:        d,
     receipt_html:     generateReceiptHTML(d),
     patient_name:     d.patient,
@@ -1699,6 +1716,17 @@ async function submitForm() {
     return;
   }
   name.style.borderBottomColor = '';
+
+  // IDS link: optional, but if something is pasted it must contain a patientId
+  const idsEl = document.getElementById('idsLink');
+  const idsRaw = idsEl.value.trim();
+  if (idsRaw && !extractIdsPatientId(idsRaw)) {
+    idsEl.focus();
+    idsEl.style.borderBottomColor = '#e07b7b';
+    showToast('IDS link not recognized — paste the patientId=… link, or clear the field.', true);
+    return;
+  }
+  idsEl.style.borderBottomColor = '';
 
   // Snapshot data BEFORE submit (for receipt)
   const caseData = collectCaseData();
@@ -1801,6 +1829,15 @@ function clearForm() {
   });
   document.getElementById('elasticSection').classList.remove('visible');
 }
+
+// ─── PRE-FILL FROM URL PARAMS (?patient=Name&ids=IDS-link) ─────────────
+(function () {
+  const p = new URLSearchParams(location.search);
+  const n = p.get('patient');
+  if (n) { const el = document.getElementById('patientName'); if (el && !el.value) el.value = n; }
+  const i = p.get('ids');
+  if (i) { const el = document.getElementById('idsLink'); if (el && !el.value) el.value = i; }
+})();
 
 // ─── TOAST NOTIFICATION ─────────────────────────────────────────────────
 function showToast(msg, isError = false) {
